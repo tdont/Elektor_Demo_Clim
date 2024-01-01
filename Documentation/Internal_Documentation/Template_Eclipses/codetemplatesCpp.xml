@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="false" context="org.eclipse.cdt.core.cxxSource.contenttype_context" deleted="false" description="Viveris C++ Guide Style compliant C++ Source File" enabled="true" name="Viveris_C++_Source">/******************************************************************************
+ * COPYRIGHT (C) NomDuClient ${year}. All rights reserved.
+ * The code hereafter might call dependencies from the FreeRTOS (C) software. 
+ * The FreeRTOS software is licensed under the MIT license.
+ *****************************************************************************/
+
+/******************** FILE HEADER ********************************************/
+/**\addtogroup ModuleName_Internal_Documentation
+ * \{ */
+/**\addtogroup SubModuleName
+ * \{ */
+
+/**
+ * \file ${file_name}
+ *
+ * File description
+ * \author Thibaut DONTAIL
+ * \date ${date}
+ */
+
+ /**
+ * \cond INTERNAL_DOC
+ *
+ * \mainpage Internal documentation of module
+ *
+ * \section Description
+ * This module does what you want him to do....
+ *
+ * \section Features
+ * The main features of the module are described here.
+ *
+ * \endcond
+ */
+
+/******************** INCLUDES ***********************************************/
+#include "${file_base}.hpp"
+
+/******************** CONSTANTS OF MODULE ************************************/
+
+/******************** MACROS DEFINITION **************************************/
+
+/******************** TYPE DEFINITION ****************************************/
+
+/******************** GLOBAL VARIABLES OF MODULE *****************************/
+
+/******************** LOCAL FUNCTION PROTOTYPE *******************************/
+
+/******************** PUBLIC *************************************************/
+/******************** --> CONSTRUCTOR ****************************************/
+${file_base}::${file_base}()
+{
+
+}
+
+/******************** --> DESTRUCTOR *****************************************/
+${file_base}::~${file_base}()
+{
+
+}
+
+/******************** --> API FUNCTIONS **************************************/
+
+/******************** PROTECTED **********************************************/
+
+/******************** PRIVATE ************************************************/
+
+/******************** LOCAL FUNCTIONS ****************************************/
+
+/**\} */
+/**\} */
+
+/* EOF */</template></templates>

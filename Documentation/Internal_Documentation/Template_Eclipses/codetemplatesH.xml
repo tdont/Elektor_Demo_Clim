@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="false" context="org.eclipse.cdt.core.cHeader.contenttype_context" deleted="false" description="Viveris C Guide Style Compliant" enabled="true" name="Viveris_C_Header">/******************************************************************************
+ * COPYRIGHT (C) NomDuClient ${year}. All rights reserved.
+ * The code hereafter might call dependencies from the FreeRTOS (C) software. 
+ * The FreeRTOS software is licensed under the MIT license.
+ *****************************************************************************/
+
+/******************** FILE HEADER ********************************************/
+/**\addtogroup ModuleName_External_Documentation
+ * \{ */
+/**\addtogroup SubModuleName
+ * \{ */
+
+/**
+ * \file ${file_name}
+ *
+ * File description
+ * \author Thibaut DONTAIL
+ * \date ${date}
+ */
+
+ /**
+ * \cond EXTERNAL_DOC
+ *
+ * \mainpage External documentation of module
+ *
+ * \section Description
+ * This module does what you want him to do....
+ *
+ * \section Features
+ * The main features of the module are described here.
+ *
+ * \endcond
+ */
+
+
+/* Prevent multiple inclusions */
+#ifndef ${include_guard_symbol}
+#define ${include_guard_symbol}
+
+/******************** INCLUDES ***********************************************/
+
+
+/******************** CONSTANTS OF MODULE ************************************/
+
+
+/******************** MACROS DEFINITION **************************************/
+
+
+/******************** TYPE DEFINITION ****************************************/
+
+
+/******************** GLOBAL VARIABLES OF MODULE *****************************/
+
+
+/******************** API FUNCTION PROTOTYPE *********************************/
+
+#endif /* ${include_guard_symbol} */
+
+/**\} */
+/**\} */
+
+/* EOF */
+</template></templates>
