@@ -1,0 +1,54 @@
+@startuml
+left to right direction
+
+'Components 
+rectangle tsk_main
+rectangle tsk_HMI
+rectangle tsk_IR_tx_atlantic
+rectangle tsk_BLE
+rectangle tsk_temp_sensor
+rectangle tsk_watchdog
+
+component BLE
+component OLED_SCREEN
+component button 
+component touch_button
+component HW_WDG
+component IR_LED
+component temperature_sensor
+
+queue manual_setpoint
+queue ble_setpoint
+queue consolidated_setpoint
+queue ble_status
+queue wdg_feed
+note left{
+    each task shall feed the watchdog
+}
+
+
+'Relation between component
+button .> tsk_HMI
+touch_button .> tsk_HMI
+tsk_HMI .> OLED_SCREEN
+tsk_HMI .> manual_setpoint
+
+tsk_BLE .> ble_setpoint  
+
+manual_setpoint .> tsk_main
+ble_setpoint .> tsk_main  
+
+tsk_main .> ble_status
+tsk_main .> consolidated_setpoint
+
+ble_status .> tsk_BLE
+tsk_BLE <.> BLE
+
+consolidated_setpoint .> tsk_IR_tx_atlantic
+tsk_IR_tx_atlantic .> IR_LED
+
+
+wdg_feed .> tsk_watchdog
+tsk_watchdog .> HW_WDG
+
+@enduml
