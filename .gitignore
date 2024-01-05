@@ -1,3 +1,4 @@
 **/.metadata/*
 **/*.o
 **/release/*
+**/debug/*

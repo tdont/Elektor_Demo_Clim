@@ -348,7 +348,7 @@ void APP_BLE_Init( void )
    UTIL_LCD_DisplayStringAt(0, 0, (uint8_t *)"WB BLE Sensor", CENTER_MODE);
    BSP_LCD_Refresh(0);
    
-   VL53L0X_Start_Measure();
+   //VL53L0X_Start_Measure();
 #if (CFG_LED_BAR_SHIELD_SUPPORTED == 1)
    Led_bar_shield_Start();
 #endif
@@ -405,7 +405,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
       
       if(link_connected == 0)
       {
-        VL53L0X_Start_Measure();
+        //VL53L0X_Start_Measure();
       }
       
       UTIL_SEQ_SetTask(1<<CFG_TASK_DISPLAY_LINK_ID, CFG_SCH_PRIO_0);
@@ -507,7 +507,7 @@ SVCCTL_UserEvtFlowStatus_t SVCCTL_App_Notification( void *pckt )
                     
           if(link_connected == 1)
           {
-            VL53L0X_Stop_Measure();
+            //VL53L0X_Stop_Measure();
           }
           
           if(link_connected < 8)
