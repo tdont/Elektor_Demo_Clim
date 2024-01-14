@@ -1,0 +1,43 @@
+@startuml
+left to right direction
+
+actor tsk_watchdog as TW
+actor tsk_any
+actor HW_WDG
+actor soft_timer as ST
+
+package tsk_watchdog {
+
+    'uses cases
+    (send HB)
+    (retrieve HB and tsk_ID)
+    (store receive time and value)
+
+    (awake periodically)
+    (evaluate tasks aliveness)
+    (feed)
+
+
+    'relation inter elements
+    (send HB) --  tsk_any
+    TW .. (send HB)
+    TW -- (retrieve HB and tsk_ID)
+    TW -- (store receive time and value)
+
+    (awake periodically) -- ST
+    TW .. (awake periodically)
+    TW -- (evaluate tasks aliveness)
+    TW -- (feed)
+    (feed) .. HW_WDG
+
+    'declare dependance
+    (send HB) <. (retrieve HB and tsk_ID) : include
+    (retrieve HB and tsk_ID) <. (store receive time and value) : include
+
+    (awake periodically) <. (evaluate tasks aliveness) : include
+    (store receive time and value) <. (evaluate tasks aliveness) : include
+    (evaluate tasks aliveness) <. (feed) : include
+
+}
+
+@enduml

@@ -1,0 +1,103 @@
+@startuml
+left to right direction
+
+
+frame SoftwareArchitecture_democratic_clim{
+
+'Declare elements
+    frame INPUT{
+        component button
+        component touch_button
+        component temperature_sensor        
+        component RTC
+        note top{
+            TODO add RTC configuration and usage
+        }
+    }
+    frame OUTPUT{
+        
+        component IR_LED
+        component OLED_SCREEN
+    }
+    rectangle tsk_main
+    rectangle tsk_HMI
+    rectangle tsk_IR_tx_atlantic
+    rectangle tsk_BLE
+    rectangle tsk_temp_sensor
+    rectangle tsk_watchdog
+
+    component BLE
+    component HW_WDG
+
+    queue hmi_setpoint
+    queue hmi_feedback
+    queue ble_setpoint
+    queue consolidated_setpoint
+    queue ble_feedback
+    queue wdg_feed
+    queue temperature_status
+
+    note top of hmi_setpoint{
+        temperature_setpoint
+        mode_setpoint
+        manual_override
+        pairing_request
+    }
+
+    note right of hmi_feedback{
+        ble_statistics
+        temperature_status
+        temperature_consolidated
+    }
+
+    note top of ble_feedback{
+        temperature_consolidated
+        mode_setpoint
+        temperature_status
+        manual_override
+    }
+
+    note left of wdg_feed{
+        each task shall feed the watchdog
+        by sending to this queue a heartbeat counter
+        and a taskID
+    }
+
+    note top of ble_setpoint{
+        ble_statistics
+        temperature_setpoint
+        mode_setpoint
+    }
+
+
+'Relation between component
+button --> tsk_HMI
+touch_button --> tsk_HMI
+tsk_HMI --> OLED_SCREEN
+tsk_HMI --> hmi_setpoint
+
+ble_setpoint <-- tsk_BLE 
+
+hmi_setpoint --> tsk_main
+tsk_main <-- ble_setpoint
+
+tsk_main --> ble_feedback
+tsk_main --> consolidated_setpoint
+
+ble_feedback --> tsk_BLE
+tsk_BLE <--> BLE
+
+consolidated_setpoint --> tsk_IR_tx_atlantic
+tsk_IR_tx_atlantic --> IR_LED
+
+temperature_sensor --> tsk_temp_sensor
+tsk_temp_sensor --> temperature_status
+temperature_status --> tsk_main
+
+hmi_feedback <-- tsk_main 
+tsk_HMI <-- hmi_feedback 
+
+wdg_feed --> tsk_watchdog
+tsk_watchdog --> HW_WDG
+}
+@enduml

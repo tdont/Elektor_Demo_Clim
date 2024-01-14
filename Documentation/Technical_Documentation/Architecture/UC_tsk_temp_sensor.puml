@@ -1,0 +1,37 @@
+@startuml
+left to right direction
+
+actor tsk_temp_sensor as TTS
+actor temperature_sensor
+actor tsk_main as TM
+actor tsk_watchdog as TW
+
+package tsk_temp_sensor {
+
+    'uses cases
+    (read temperature)
+    (filter value)
+    (provide filtered value)
+
+    rectangle (Watchdog){
+        (send HB)
+    }
+
+    'relation inter elements
+    TTS -- (read temperature)
+    TTS -- (filter value)
+    TTS -- (provide filtered value)
+
+    TTS -- (send HB)
+
+    (read temperature) .. temperature_sensor
+    (provide filtered value) .. TM
+
+    (send HB) .. TW
+
+    'declare dependance
+    (read temperature) <. (filter value) : include
+    (filter value) <. (provide filtered value) : include
+}
+
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+left to right direction
+
+actor tsk_tx_ATLANTIC as TTA
+actor tsk_main as TM
+actor IR_LED
+actor tsk_watchdog as TW
+
+package tsk_tx_ATLANTIC {
+
+    'uses cases
+    (provide temperature and mode setpoint)
+    (format setpoints into Atlantic IR protocol)
+    (send IR stream)
+
+    rectangle (Watchdog){
+        (send HB)
+    }
+
+    'relation inter elements
+    (provide temperature and mode setpoint) -- TM
+    TTA .. (provide temperature and mode setpoint)
+
+    TTA -- (format setpoints into Atlantic IR protocol)
+
+    TTA -- (send IR stream)
+    (send IR stream) .. IR_LED
+
+    TTA -- (send HB)
+    (send HB) .. TW
+
+    'declare dependance
+    (provide temperature and mode setpoint) <. (format setpoints into Atlantic IR protocol) : include
+    (format setpoints into Atlantic IR protocol) <. (send IR stream) : include
+}
+
+@enduml
