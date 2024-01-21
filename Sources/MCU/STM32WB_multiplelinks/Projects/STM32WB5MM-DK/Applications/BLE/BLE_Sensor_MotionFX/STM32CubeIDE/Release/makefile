@@ -21,6 +21,8 @@ RM := rm -rf
 -include Application/User/Core/vl53l0x/subdir.mk
 -include Application/User/Core/subdir.mk
 -include Application/Startup/subdir.mk
+-include 3rdparty/YACSWL/src/subdir.mk
+-include 3rdparty/YACSGL/src/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)

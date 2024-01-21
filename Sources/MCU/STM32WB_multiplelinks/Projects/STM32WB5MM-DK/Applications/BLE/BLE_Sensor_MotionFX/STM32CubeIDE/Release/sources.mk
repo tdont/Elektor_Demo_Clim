@@ -23,6 +23,8 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+3rdparty/YACSGL/src \
+3rdparty/YACSWL/src \
 Application/Startup \
 Application/User/Core \
 Application/User/Core/vl53l0x \

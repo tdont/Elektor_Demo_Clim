@@ -495,5 +495,51 @@
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/STM32_WPAN/Target/hw_ipcc.c</locationURI>
 		</link>
+		<link>
+			<name>3rdparty/YACSGL/src/YACSGL.c</name>
+			<type>1</type>
+			<locationURI>PARENT-6-PROJECT_LOC/3rdparty/YACSGL/src/YACSGL.c</locationURI>
+		</link>
+		<link>
+			<name>3rdparty/YACSGL/src/YACSGL_bitmap.c</name>
+			<type>1</type>
+			<locationURI>PARENT-6-PROJECT_LOC/3rdparty/YACSGL/src/YACSGL.c</locationURI>
+		</link>
+		<link>
+			<name>3rdparty/YACSGL/src/YACSGL_font.c</name>
+			<type>1</type>
+			<locationURI>PARENT-6-PROJECT_LOC/3rdparty/YACSGL/src/YACSGL.c</locationURI>
+		</link>
+		<link>
+			<name>3rdparty/YACSGL/src/YACSGL_font_5x7.c</name>
+			<type>1</type>
+			<locationURI>PARENT-6-PROJECT_LOC/3rdparty/YACSGL/src/YACSGL.c</locationURI>
+		</link>
+		<link>
+			<name>3rdparty/YACSGL/src/YACSGL_font_8x16.c</name>
+			<type>1</type>
+			<locationURI>PARENT-6-PROJECT_LOC/3rdparty/YACSGL/src/YACSGL.c</locationURI>
+		</link>
+		<link>
+			<name>3rdparty/YACSWL/src/YACSWL_label.c</name>
+			<type>1</type>
+			<locationURI>PARENT-6-PROJECT_LOC/3rdparty/YACSWL/src/YACSWL_label.c</locationURI>
+		</link>
+		<link>
+			<name>3rdparty/YACSWL/src/YACSWL_progress_bar.c</name>
+			<type>1</type>
+			<locationURI>PARENT-6-PROJECT_LOC/3rdparty/YACSWL/src/YACSWL_progress_bar.c</locationURI>
+		</link>
+		<link>
+			<name>3rdparty/YACSWL/src/YACSWL_radio_btn.c</name>
+			<type>1</type>
+			<locationURI>PARENT-6-PROJECT_LOC/3rdparty/YACSWL/src/YACSWL_radio_btn.c</locationURI>
+		</link>
+		<link>
+			<name>3rdparty/YACSWL/src/YACSWL_widget.c</name>
+			<type>1</type>
+			<locationURI>PARENT-6-PROJECT_LOC/3rdparty/YACSWL/src/YACSWL_widget.c</locationURI>
+		</link>
+				
 	</linkedResources>
 </projectDescription>

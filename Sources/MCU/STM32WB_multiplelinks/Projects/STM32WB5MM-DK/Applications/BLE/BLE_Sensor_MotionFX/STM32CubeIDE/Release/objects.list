@@ -1,3 +1,8 @@
+"./3rdparty/YACSGL/src/YACSGL.o"
+"./3rdparty/YACSWL/src/YACSWL_label.o"
+"./3rdparty/YACSWL/src/YACSWL_progress_bar.o"
+"./3rdparty/YACSWL/src/YACSWL_radio_btn.o"
+"./3rdparty/YACSWL/src/YACSWL_widget.o"
 "./Application/Startup/startup_stm32wb5mmghx.o"
 "./Application/User/Core/app_debug.o"
 "./Application/User/Core/app_entry.o"
