@@ -1,6 +1,6 @@
 [submodule "Sources/MCU/STM32WB_multiplelinks/3rdparty/YACSGL"]
-	path = Sources/MCU/STM32WB_multiplelinks/3rdparty/YACSGL
+	path = Sources/MCU/BLE_Freertos/3rdparty/YACSGL
 	url = git@github.com:tdont/YACSGL.git
 [submodule "Sources/MCU/STM32WB_multiplelinks/3rdparty/YACSWL"]
-	path = Sources/MCU/STM32WB_multiplelinks/3rdparty/YACSWL
+	path = Sources/MCU/BLE_Freertos/3rdparty/YACSWL
 	url = git@github.com:tdont/YACSWL.git
