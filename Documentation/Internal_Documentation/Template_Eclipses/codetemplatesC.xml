@@ -1,6 +1,22 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="false" context="org.eclipse.cdt.core.cSource.contenttype_context" deleted="false" description="Viveris C Guide Style compliant C Source File" enabled="true" name="Viveris_C_Source">/******************************************************************************
- * COPYRIGHT (C) NomDuClient ${year}. All rights reserved.
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><templates><template autoinsert="false" context="org.eclipse.cdt.core.cSource.contenttype_context" deleted="false" description="DemoCLIM C Guide Style compliant C Source File" enabled="true" name="DemoCLIM_C_Source">/******************************************************************************
+ * COPYRIGHT (C) Thibaut DONTAIL ${year}. 
+ *
+ * This file is part of ELEKTO_DEMO_CLIM.
+ *
+ * ELEKTO_DEMO_CLIM is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ELEKTO_DEMO_CLIM is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ *
  * The code hereafter might call dependencies from the FreeRTOS (C) software. 
+ * along with ELEKTO_DEMO_CLIM.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
  * The FreeRTOS software is licensed under the MIT license.
  *****************************************************************************/
 
