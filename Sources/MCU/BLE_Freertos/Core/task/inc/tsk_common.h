@@ -60,8 +60,8 @@
 /******************** TYPE DEFINITION ****************************************/
 typedef struct
 {
-    uint8_t tskId;          /* Identification of task */
-    uint8_t hbCounter;      /* HeartBeatCounter, Shall keep incrementing */
+    uint8_t tsk_id;          /* Identification of task */
+    uint8_t hb_counter;      /* HeartBeatCounter, Shall keep incrementing */
 }tskCommon_Hb_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/

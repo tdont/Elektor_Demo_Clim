@@ -65,11 +65,13 @@
 
 /* Definition of tasks StackSize */
 #define TSK_CNFG_STACKSIZE_WDGT                     (128)
+#define TSK_CNFG_STACKSIZE_HMI                      (128)
 
 /* Definition of MSGOBJ (1 is reserved for CMCH Task) */
 
 /* Definition of tasks name for debug */
 #define TSK_CNFG_NAME_WDGT               		"TaskWDGT"
+#define TSK_CNFG_NAME_HMI               		"TaskHMI"
 
 /* Definition of Queue name for debug */
 #define TSK_CNFG_QUEUE_NAME_HB_TO_WDG           "QueHbToWdg"

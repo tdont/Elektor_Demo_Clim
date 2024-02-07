@@ -35,21 +35,23 @@
 #include <semphr.h>
 #include <task.h>
 
-#include <tsk_WDGT.h>
-#include <tsk_common.h>
-#include <tsk_config.h>
+#include <stm32wbxx_hal.h>
+#include <stm32wb5mm_dk.h>
+#include <stm32wb5mm_dk_env_sensors.h>
+#include <stm32wb5mm_dk_motion_sensors.h>
+#include <stm32wb5mm_dk_errno.h>
+#include <stm32wb5mm_dk_conf.h>
+#include <stm32wb5mm_dk_bus.h>
+#include <stm32wb5mm_dk_lcd.h>
+#include <stm32_lcd.h>
+#include <stm32wbxx.h>
+#include <stm32wbxx_it.h>
 
-#include "stm32wbxx_hal.h"
-#include "stm32wb5mm_dk.h"
-#include "stm32wb5mm_dk_env_sensors.h"
-#include "stm32wb5mm_dk_motion_sensors.h"
-#include "stm32wb5mm_dk_errno.h"
-#include "stm32wb5mm_dk_conf.h"
-#include "stm32wb5mm_dk_bus.h"
-#include "stm32wb5mm_dk_lcd.h"
-#include "stm32_lcd.h"
-#include "stm32wbxx.h"
-#include "stm32wbxx_it.h"
+#include "tsk_common.h"
+#include "tsk_config.h"
+#include "tsk_WDGT.h"
+#include "tsk_HMI.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -70,7 +72,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-static tskWDGT_TaskParam_t          stParamWDGT = {0};
+static tskWDGT_TaskParam_t          param_WDGT = {0};
+static tskHMI_TaskParam_t           param_HMI = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -131,43 +134,23 @@ int main(void)
   //MX_I2C3_Init();
   MX_RF_Init();
   /* USER CODE BEGIN 2 */
-  BSP_PB_Init(BUTTON_USER1, BUTTON_MODE_EXTI);
-  BSP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
+  // BSP_PB_Init(BUTTON_USER1, BUTTON_MODE_EXTI);
 
-  uint32_t x_size, y_size;
+  // (void)BSP_ENV_SENSOR_Init(ENV_SENSOR_STTS22H_0, ENV_TEMPERATURE);
+  // (void)BSP_ENV_SENSOR_Enable(ENV_SENSOR_STTS22H_0, ENV_TEMPERATURE);
 
-  BSP_LCD_GetXSize(0, &x_size);
-  BSP_LCD_GetYSize(0, &y_size);
-
-  UTIL_LCD_SetFuncDriver(&LCD_Driver); /* SetFunc before setting device */
-  UTIL_LCD_SetDevice(0);            /* SetDevice after funcDriver is set */
-  BSP_LCD_DisplayOn(0);
-
-  UTIL_LCD_SetFont(&Font12);
-  /* Set the LCD Text Color */
-  UTIL_LCD_SetTextColor(SSD1315_COLOR_WHITE);
-  UTIL_LCD_SetBackColor(SSD1315_COLOR_BLACK);
-  BSP_LCD_Clear(0,SSD1315_COLOR_BLACK);
-  BSP_LCD_Refresh(0);
-
-  UTIL_LCD_DisplayStringAt(0, 0, (uint8_t *)"Elektor demo clim", CENTER_MODE);
-  BSP_LCD_Refresh(0);
-
-  (void)BSP_ENV_SENSOR_Init(ENV_SENSOR_STTS22H_0, ENV_TEMPERATURE);
-  (void)BSP_ENV_SENSOR_Enable(ENV_SENSOR_STTS22H_0, ENV_TEMPERATURE);
-
-  int i = 0;
-  do
-  {
-	  float temperature;
-	  temperature = 0;
-	  (void)BSP_ENV_SENSOR_GetValue(ENV_SENSOR_STTS22H_0, ENV_TEMPERATURE, &temperature);
-	  char temp[64];
-	  sprintf(temp,"Temp=%f", temperature);
-	  UTIL_LCD_DisplayStringAt(0, 37, (uint8_t *)temp, CENTER_MODE);
-	  BSP_LCD_Refresh(0);
-	  i++;
-  } while(i < 10);
+  // int i = 0;
+  // do
+  // {
+	//   float temperature;
+	//   temperature = 0;
+	//   (void)BSP_ENV_SENSOR_GetValue(ENV_SENSOR_STTS22H_0, ENV_TEMPERATURE, &temperature);
+	//   char temp[64];
+	//   sprintf(temp,"Temp=%f", temperature);
+	//   UTIL_LCD_DisplayStringAt(0, 37, (uint8_t *)temp, CENTER_MODE);
+	//   BSP_LCD_Refresh(0);
+	//   i++;
+  // } while(i < 10);
 
   vStartTasks();
   /* USER CODE END 2 */
@@ -285,7 +268,8 @@ static void vSetupOsExchangeObject(void)
         NVIC_SystemReset();
     }
     /* Store the value to tasks parameters */
-    stParamWDGT.queueHbFromMonitoredTask = tmpQueueHandle;
+    param_WDGT.queueHbFromMonitoredTask = tmpQueueHandle;
+    param_HMI.queue_hb_to_watchdog = tmpQueueHandle;
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HB_TO_WDG);
 
@@ -300,13 +284,25 @@ static void vStartTasks(void)
     vSetupOsExchangeObject();
 
     /* By default every task shall be monitored */
-    stParamWDGT.excludeMonitoredTskBitmask = 0;
+    param_WDGT.excludeMonitoredTskBitmask = 0;
     /* Indicate how many task shall be monitored */
-    stParamWDGT.u8_nbMonitoredTasks = TSK_CNFG_MONITORED_ID_CNT;
+    param_WDGT.u8_nbMonitoredTasks = TSK_CNFG_MONITORED_ID_CNT;
 
     /* WDGT thread */
     ret = xTaskCreate(vWDGT_task, (const char * const) TSK_CNFG_NAME_WDGT,
-                        TSK_CNFG_STACKSIZE_WDGT, &stParamWDGT, TSK_CNFG_PRIORITY_WDGT,
+                        TSK_CNFG_STACKSIZE_WDGT, &param_WDGT, TSK_CNFG_PRIORITY_WDGT,
+                        (xTaskHandle *) NULL);
+
+    /* Check whether task was created */
+    if (ret != pdTRUE)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+
+    /* HMI thread */
+    ret = xTaskCreate(vHMI_task, (const char * const) TSK_CNFG_NAME_HMI,
+                        TSK_CNFG_STACKSIZE_HMI, &param_HMI, TSK_CNFG_PRIORITY_HMI,
                         (xTaskHandle *) NULL);
 
     /* Check whether task was created */

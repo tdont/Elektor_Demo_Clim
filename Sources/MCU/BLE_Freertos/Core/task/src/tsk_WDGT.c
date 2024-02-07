@@ -65,7 +65,7 @@
 #define WDGT_TASK_STATS_NB      20
 
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
-static void vWDGT_iRetrieveHbMessage(xQueueHandle hbQueue, uint8_t* const hbCounter, uint32_t* const aliveTskBitmask, uint16_t timeoutMs, uint8_t nbMaxTaskMonitored);
+static void vWDGT_iRetrieveHbMessage(xQueueHandle hbQueue, uint8_t* const hb_counter, uint32_t* const aliveTskBitmask, uint16_t timeoutMs, uint8_t nbMaxTaskMonitored);
 
 static void vWDGT_icheckWacthdogFeeding(uint32_t aliveTskBitmask, uint32_t maskForAliveTask, uint32_t excludeMonitoredTskBitmask);
 /******************** API FUNCTIONS ******************************************/
@@ -170,16 +170,16 @@ static void vWDGT_iRetrieveHbMessage(xQueueHandle hbQueue, uint8_t* const hbCoun
     if (ret == pdPASS)
     {
         /* Ensure the Task Id is below the maximum possible */
-        if (stHbMsg.tskId < nbMaxTaskMonitored)
+        if (stHbMsg.tsk_id < nbMaxTaskMonitored)
         {
 
             /* Check whether the heartbeat match the requirement (is within the windows) */
             /* Distinguish the case far from 0 reset */
-            if (stHbMsg.hbCounter >= WDGT_HB_TOLERATED_WINDOW)
+            if (stHbMsg.hb_counter >= WDGT_HB_TOLERATED_WINDOW)
             {
                 /* If previous value is within the windows */
-                if ( (hbCounters[stHbMsg.tskId] < stHbMsg.hbCounter)
-                    && (hbCounters[stHbMsg.tskId] >= (stHbMsg.hbCounter - WDGT_HB_TOLERATED_WINDOW))
+                if ( (hbCounters[stHbMsg.tsk_id] < stHbMsg.hb_counter)
+                    && (hbCounters[stHbMsg.tsk_id] >= (stHbMsg.hb_counter - WDGT_HB_TOLERATED_WINDOW))
                    )
                 {
                     /* Value is within range */
@@ -189,8 +189,8 @@ static void vWDGT_iRetrieveHbMessage(xQueueHandle hbQueue, uint8_t* const hbCoun
             /* Within the overflow reset to 0 of heartbeat counters */
             else
             {
-                if (   (hbCounters[stHbMsg.tskId] >= (255 - (WDGT_HB_TOLERATED_WINDOW - stHbMsg.hbCounter)))
-                    || (hbCounters[stHbMsg.tskId] >= 0 && hbCounters[stHbMsg.tskId] < stHbMsg.hbCounter)
+                if (   (hbCounters[stHbMsg.tsk_id] >= (255 - (WDGT_HB_TOLERATED_WINDOW - stHbMsg.hb_counter)))
+                    || (hbCounters[stHbMsg.tsk_id] >= 0 && hbCounters[stHbMsg.tsk_id] < stHbMsg.hb_counter)
                     )
                 {
                     /* Value is within range */
@@ -201,11 +201,11 @@ static void vWDGT_iRetrieveHbMessage(xQueueHandle hbQueue, uint8_t* const hbCoun
             /* If detected inside window report task as alive */
             if (withinWindow != 0)
             {
-                *aliveTskBitmask = *aliveTskBitmask | (1 << stHbMsg.tskId);
+                *aliveTskBitmask = *aliveTskBitmask | (1 << stHbMsg.tsk_id);
             }
 
             /* Store the new heartbeat value */
-            hbCounters[stHbMsg.tskId] = stHbMsg.hbCounter;
+            hbCounters[stHbMsg.tsk_id] = stHbMsg.hb_counter;
         }
     }
 
@@ -218,9 +218,9 @@ static void vWDGT_icheckWacthdogFeeding(uint32_t aliveTskBitmask, uint32_t maskF
     /* If Both are equal, all the task were seen alived */
     if ((aliveTskBitmask | excludeMonitoredTskBitmask) == maskForAliveTask)
     {
-        /* Feed the watchdog */
+        /* TODO Feed the HW watchdog */
 
-        /* Toogle life led */
+        /* TODO Toogle life led */
     }
 }
 
