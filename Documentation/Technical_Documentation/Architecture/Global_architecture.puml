@@ -8,6 +8,7 @@ frame SoftwareArchitecture_democratic_clim{
     frame INPUT{
         component button
         component touch_button
+        component tof
         component temperature_sensor        
         component RTC
         note top{
@@ -71,6 +72,7 @@ frame SoftwareArchitecture_democratic_clim{
 
 
 'Relation between component
+tof --> tsk_HMI
 button --> tsk_HMI
 touch_button --> tsk_HMI
 tsk_HMI --> OLED_SCREEN
