@@ -89,6 +89,7 @@ SSD1315_Drv_t   SSD1315_Driver =
   SSD1315_SetPixel,
   SSD1315_GetXSize,
   SSD1315_GetYSize,
+  SSD1315_GetFrameBuffer,
 };
 
 #if defined ( __ICCARM__ )  /* IAR Compiler */
@@ -822,6 +823,25 @@ int32_t SSD1315_GetYSize(SSD1315_Object_t *pObj, uint32_t *YSize)
   else
   {
     ret = SSD1315_ERROR;
+  }
+
+  return ret;
+}
+
+
+int32_t SSD1315_GetFrameBuffer(SSD1315_Object_t *pObj, uint8_t** frame_buffer)
+{
+  int32_t  ret = SSD1315_ERROR;
+
+  if (pObj != NULL)
+  {
+    *frame_buffer = PhysFrameBuffer;
+
+    ret = SSD1315_OK;
+  }
+  else
+  {
+    *frame_buffer = NULL;
   }
 
   return ret;

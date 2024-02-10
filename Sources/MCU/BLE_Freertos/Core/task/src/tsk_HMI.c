@@ -59,6 +59,11 @@
 #include <stm32wb5mm_dk_lcd.h>
 #include <stm32wb5mm_dk.h>
 
+#include <YACSGL.h>
+#include <YACSGL_font_8x16.h>
+#include <YACSWL.h>
+#include <ssd1315.h>
+
 #include "tsk_common.h"
 #include "tsk_config.h"
 
@@ -69,7 +74,7 @@
 /******************** TYPE DEFINITION ****************************************/
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
-
+static YACSGL_frame_t hmi_lcd_frame = {};
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
 void HMI_init_display(void);
 void HMI_init_button(void);
@@ -137,18 +142,31 @@ void HMI_init_display(void)
     BSP_LCD_GetXSize(0, &x_size);
     BSP_LCD_GetYSize(0, &y_size);
 
-    UTIL_LCD_SetFuncDriver(&LCD_Driver); /* SetFunc before setting device */
-    UTIL_LCD_SetDevice(0);            /* SetDevice after funcDriver is set */
+    hmi_lcd_frame.frame_x_width = (uint16_t) x_size;
+    hmi_lcd_frame.frame_y_heigth= (uint16_t) y_size;
+    if(BSP_LCD_GetFrameBuffer(0, &(hmi_lcd_frame.frame_buffer)) != BSP_ERROR_NONE)
+    {
+        vTskCommon_ErrorLoop();
+    }
+
+
+    // UTIL_LCD_SetFuncDriver(&LCD_Driver); /* SetFunc before setting device */
+    // UTIL_LCD_SetDevice(0);            /* SetDevice after funcDriver is set */
     BSP_LCD_DisplayOn(0);
+    
+    YACSGL_font_txt_disp(&hmi_lcd_frame, 0, 0, YACSGL_P_WHITE, 
+                &YACSGL_font_8x16, "Elektor demo clim", YACSGL_NEWLINE_ENABLED);
+    YACSGL_rect_fill(&hmi_lcd_frame, 30, 30, 39, 39, YACSGL_P_WHITE);
+    YACSGL_circle_line(&hmi_lcd_frame, 50, 50, 20, YACSGL_P_WHITE);
 
-    UTIL_LCD_SetFont(&Font12);
-    /* Set the LCD Text Color */
-    UTIL_LCD_SetTextColor(SSD1315_COLOR_WHITE);
-    UTIL_LCD_SetBackColor(SSD1315_COLOR_BLACK);
-    BSP_LCD_Clear(0,SSD1315_COLOR_BLACK);
-    BSP_LCD_Refresh(0);
 
-    UTIL_LCD_DisplayStringAt(0, 0, (uint8_t *)"Elektor demo clim", CENTER_MODE);
+    // UTIL_LCD_SetFont(&Font12);
+    // /* Set the LCD Text Color */
+    // UTIL_LCD_SetTextColor(SSD1315_COLOR_WHITE);
+    // UTIL_LCD_SetBackColor(SSD1315_COLOR_BLACK);
+    // BSP_LCD_Clear(0,SSD1315_COLOR_BLACK);
+
+    // UTIL_LCD_DisplayStringAt(0, 0, (uint8_t *)"Elektor demo clim", CENTER_MODE);
     BSP_LCD_Refresh(0);
 }
 

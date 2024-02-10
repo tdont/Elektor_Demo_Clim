@@ -290,6 +290,34 @@ int32_t BSP_LCD_GetYSize(uint32_t Instance, uint32_t *pYSize)
   return ret;
 }
 
+int32_t  BSP_LCD_GetFrameBuffer(uint32_t Instance, uint8_t** framebuffer)
+{
+  int32_t ret = BSP_ERROR_NONE;
+
+  if(Instance >= LCD_INSTANCES_NBR)
+  {
+    ret = BSP_ERROR_WRONG_PARAM;
+  }
+  else if(LcdDrv->GetFrameBuffer != NULL)
+  {
+    if(LcdDrv->GetFrameBuffer(LcdCompObj, framebuffer) < 0)
+    {
+      ret = BSP_ERROR_COMPONENT_FAILURE;
+    }
+  }
+  else
+  {
+    ret = BSP_ERROR_UNKNOWN_COMPONENT;
+  }
+
+  if(ret  != BSP_ERROR_NONE)
+  {
+    *framebuffer = NULL;
+  }
+
+  return ret;
+}
+
 /**
   * @brief  Switch On the display.
   * @param  Instance LCD Instance

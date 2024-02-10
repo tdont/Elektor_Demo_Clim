@@ -100,6 +100,7 @@ typedef struct
   int32_t ( *SetPixel        ) (SSD1315_Object_t*, uint32_t, uint32_t, uint32_t);
   int32_t ( *GetXSize        ) (SSD1315_Object_t*, uint32_t *);
   int32_t ( *GetYSize        ) (SSD1315_Object_t*, uint32_t *);
+  int32_t ( *GetFrameBuffer  ) (SSD1315_Object_t*, uint32_t *);
 }SSD1315_Drv_t;
 
 /**
@@ -174,6 +175,7 @@ int32_t SSD1315_SetPixel(SSD1315_Object_t *pObj, uint32_t Xpos, uint32_t Ypos, u
 int32_t SSD1315_GetPixel(SSD1315_Object_t *pObj, uint32_t Xpos, uint32_t Ypos, uint32_t *Color);
 int32_t SSD1315_GetXSize(SSD1315_Object_t *pObj, uint32_t *XSize);
 int32_t SSD1315_GetYSize(SSD1315_Object_t *pObj, uint32_t *YSize);
+int32_t SSD1315_GetFrameBuffer(SSD1315_Object_t *pObj, uint8_t** frame_buffer);
 
 /**
   * @}

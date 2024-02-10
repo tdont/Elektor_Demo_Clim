@@ -146,6 +146,7 @@ int32_t  BSP_LCD_SetBrightness(uint32_t Instance, uint32_t Brightness);
 int32_t  BSP_LCD_GetBrightness(uint32_t Instance, uint32_t *Brightness);
 int32_t  BSP_LCD_GetXSize(uint32_t Instance, uint32_t *XSize);
 int32_t  BSP_LCD_GetYSize(uint32_t Instance, uint32_t *YSize);
+int32_t  BSP_LCD_GetFrameBuffer(uint32_t Instance, uint8_t** framebuffer);
 int32_t  BSP_LCD_GetPixelFormat(uint32_t Instance, uint32_t *PixelFormat);
 int32_t  BSP_LCD_SetOrientation(uint32_t Instance, uint32_t Orientation);
 int32_t  BSP_LCD_GetOrientation(uint32_t Instance, uint32_t *Orientation);
