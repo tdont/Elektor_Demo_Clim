@@ -66,6 +66,7 @@
 
 #include "tsk_common.h"
 #include "tsk_config.h"
+#include "tsk_HMI_status_bar.h"
 
 /******************** CONSTANTS OF MODULE ************************************/
 
@@ -74,7 +75,13 @@
 /******************** TYPE DEFINITION ****************************************/
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
-static YACSGL_frame_t hmi_lcd_frame = {};
+static YACSGL_frame_t hmi_lcd_frame = {0};
+static tskHMI_status_bar_data_t status_bar_data = {0};
+
+YACSWL_widget_t hmi_root_widget;
+
+static YACSWL_progress_bar_t progress_bar = {0};
+
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
 void HMI_init_display(void);
 void HMI_init_button(void);
@@ -100,7 +107,9 @@ void vHMI_task(void* pv_param_task)
 
     task_param = (tskHMI_TaskParam_t*) pv_param_task;
 
-    /* TODO perform init of the HMI part here */
+    /* Init Button*/
+    HMI_init_button();
+
     /* Init Display */
     HMI_init_display();
 
@@ -135,29 +144,58 @@ void vHMI_task(void* pv_param_task)
 /******************** LOCAL FUNCTIONS ****************************************/
 void HMI_init_display(void)
 {
+    /* Init LCD screen */
     BSP_LCD_Init(0, LCD_ORIENTATION_LANDSCAPE);
 
     uint32_t x_size, y_size;
 
+    /* Retrieve LCD size */
     BSP_LCD_GetXSize(0, &x_size);
-    BSP_LCD_GetYSize(0, &y_size);
-
+    BSP_LCD_GetYSize(0, &y_size);    
     hmi_lcd_frame.frame_x_width = (uint16_t) x_size;
     hmi_lcd_frame.frame_y_heigth= (uint16_t) y_size;
+
+    /* Retrieve framebuffer */
     if(BSP_LCD_GetFrameBuffer(0, &(hmi_lcd_frame.frame_buffer)) != BSP_ERROR_NONE)
     {
         vTskCommon_ErrorLoop();
     }
 
-
     // UTIL_LCD_SetFuncDriver(&LCD_Driver); /* SetFunc before setting device */
     // UTIL_LCD_SetDevice(0);            /* SetDevice after funcDriver is set */
+    /* Set LCD ON */
     BSP_LCD_DisplayOn(0);
     
-    YACSGL_font_txt_disp(&hmi_lcd_frame, 0, 0, YACSGL_P_WHITE, 
-                &YACSGL_font_8x16, "Elektor demo clim", YACSGL_NEWLINE_ENABLED);
-    YACSGL_rect_fill(&hmi_lcd_frame, 30, 30, 39, 39, YACSGL_P_WHITE);
-    YACSGL_circle_line(&hmi_lcd_frame, 50, 50, 20, YACSGL_P_WHITE);
+    // YACSGL_font_txt_disp(&hmi_lcd_frame, 0u, 0u, YACSGL_P_WHITE, 
+    //             &YACSGL_font_8x16, "Elektor demo clim", YACSGL_NEWLINE_ENABLED);
+    // YACSGL_rect_fill(&hmi_lcd_frame, 30u, 30u, 39u, 39u, YACSGL_P_WHITE);
+    // YACSGL_circle_line(&hmi_lcd_frame, 50u, 50u, 20u, YACSGL_P_WHITE);
+
+    /* Create root widget */
+    YACSWL_widget_init(&hmi_root_widget);
+    YACSWL_widget_set_size(&hmi_root_widget, hmi_lcd_frame.frame_x_width - 1u, hmi_lcd_frame.frame_y_heigth - 1u);
+    YACSWL_widget_set_border_width(&hmi_root_widget, 0u);
+
+    /* Set background and foreground TODO make it configurable */
+    YACSWL_widget_set_foreground_color(&hmi_root_widget, YACSGL_P_BLACK);
+    YACSWL_widget_set_background_color(&hmi_root_widget, YACSGL_P_WHITE);
+
+
+    YACSWL_progress_bar_init(&progress_bar);
+    YACSWL_widget_set_border_width(&progress_bar.widget, 1u);
+    YACSWL_widget_set_size(&progress_bar.widget, 70u, 5u);
+    YACSWL_widget_set_pos(&progress_bar.widget, 5u, 5u);
+
+    progress_bar.progress = 75u;
+    YACSWL_widget_add_child(&hmi_root_widget, &progress_bar.widget);
+
+    /* Init status bar */
+    vHMISB_init(&status_bar_data, &hmi_root_widget);
+
+
+    /* Finaly draw widgets */
+    YACSWL_widget_draw(&hmi_root_widget, &hmi_lcd_frame);
+
 
 
     // UTIL_LCD_SetFont(&Font12);

@@ -64,6 +64,12 @@ typedef struct
     uint8_t hb_counter;      /* HeartBeatCounter, Shall keep incrementing */
 }tskCommon_Hb_t;
 
+typedef enum
+{
+    TC_CLIM_MODE_HEAT = 0,
+    TC_CLIM_MODE_COLD
+}tskCommon_clim_mode_e;
+
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 
 /******************** API FUNCTION PROTOTYPE *********************************/
