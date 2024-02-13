@@ -83,11 +83,9 @@ typedef struct
 /******************** API FUNCTION PROTOTYPE *********************************/
 void vHMISB_init(const tskHMI_status_bar_data_t* const status_bar_data, YACSWL_widget_t* const root_widget);
 
-// void vHMISB_enter_screen(YACSWL_widget_t* const root_widget);
-// void vHMISB_leave_screen(YACSWL_widget_t* const root_widget);
-
 void vHMISB_update(const tskHMI_status_bar_data_t* const status_bar_data);
 
+uint16_t u16HMISB_get_height(void);
 #endif /* TASK_INC_TSK_HMI_STATUS_BAR_H_ */
 
 /**\} */

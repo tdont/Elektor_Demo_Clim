@@ -67,7 +67,10 @@
 
 #include "tsk_common.h"
 #include "tsk_config.h"
+#include "tsk_HMI_screen.h"
 #include "tsk_HMI_status_bar.h"
+#include "tsk_HMI_screen_main.h"
+
 
 /******************** CONSTANTS OF MODULE ************************************/
 
@@ -78,13 +81,23 @@
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 static YACSGL_frame_t hmi_lcd_frame = {0};
 static tskHMI_status_bar_data_t status_bar_data = {0};
+static tskHMI_screen_main_t     screen_main_data = {0};
 
-YACSWL_widget_t hmi_root_widget;
+static YACSWL_widget_t hmi_root_widget={0};
+static YACSWL_widget_t hmi_screen_area_widget = {0};
 
-static YACSWL_progress_bar_t progress_bar = {0};
+/* Register screens here */
+static tsk_HMI_screen_t hmi_screens[] = { {"Ambient temperature",
+                                            (void*)&screen_main_data,
+                                            vHMISM_init,
+                                            vHMISM_enter_screen,
+                                            vHMISM_leave_screen,
+                                            vHMISM_update}
+                                        };
 
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
 void HMI_init_display(void);
+void HMI_init_widget(void);
 void HMI_init_button(void);
 void BSP_PB_Callback(Button_TypeDef Button);
 
@@ -114,6 +127,9 @@ void vHMI_task(void* pv_param_task)
     /* Init Display */
     HMI_init_display();
 
+    /* Init widget */
+    HMI_init_widget();
+
     while (1) /* Task loop */
     {
         /* TODO handle incomming messages */
@@ -122,17 +138,19 @@ void vHMI_task(void* pv_param_task)
         
         /* TODO handle screen refresh */
 
-    	//vTaskDelay(50);
-        status_bar_data.setpoint_temperature+=0.1;
+    	vTaskDelay(50/portTICK_RATE_MS);
 
         /* Refresh status bar */
         vHMISB_update(&status_bar_data);
-
+        /* TODO check whether it is only current screen */
+        /* Refresh all screen */
+        for (uint8_t i = 0; i < sizeof(hmi_screens)/sizeof(tsk_HMI_screen_t); i++)
+        {
+            hmi_screens[i].update(hmi_screens[i].data);
+        }
 
         YACSWL_widget_draw(&hmi_root_widget, &hmi_lcd_frame);
         BSP_LCD_Refresh(0);
-
-
 
         /* Compute elapsed time since last Heartbeat message */
         elapsed_time_ms = (xTaskGetTickCount() - hb_sending_tick) * portTICK_RATE_MS;
@@ -172,17 +190,15 @@ void HMI_init_display(void)
     {
         vTskCommon_ErrorLoop();
     }
-
-    // UTIL_LCD_SetFuncDriver(&LCD_Driver); /* SetFunc before setting device */
-    // UTIL_LCD_SetDevice(0);            /* SetDevice after funcDriver is set */
-    /* Set LCD ON */
-    BSP_LCD_DisplayOn(0);
     
-    // YACSGL_font_txt_disp(&hmi_lcd_frame, 0u, 0u, YACSGL_P_WHITE, 
-    //             &YACSGL_font_8x16, "Elektor demo clim", YACSGL_NEWLINE_ENABLED);
-    // YACSGL_rect_fill(&hmi_lcd_frame, 30u, 30u, 39u, 39u, YACSGL_P_WHITE);
-    // YACSGL_circle_line(&hmi_lcd_frame, 50u, 50u, 20u, YACSGL_P_WHITE);
+     /* Set LCD ON */
+    BSP_LCD_DisplayOn(0);
 
+    return;
+}
+
+void HMI_init_widget(void)
+{
     /* Create root widget */
     YACSWL_widget_init(&hmi_root_widget);
     YACSWL_widget_set_size(&hmi_root_widget, hmi_lcd_frame.frame_x_width - 1u, hmi_lcd_frame.frame_y_heigth - 1u);
@@ -192,32 +208,47 @@ void HMI_init_display(void)
     YACSWL_widget_set_foreground_color(&hmi_root_widget, YACSGL_P_BLACK);
     YACSWL_widget_set_background_color(&hmi_root_widget, YACSGL_P_WHITE);
 
-
-    // YACSWL_progress_bar_init(&progress_bar);
-    // YACSWL_widget_set_border_width(&progress_bar.widget, 1u);
-    // YACSWL_widget_set_size(&progress_bar.widget, 70u, 5u);
-    // YACSWL_widget_set_pos(&progress_bar.widget, 5u, 5u);
-
-    // progress_bar.progress = 75u;
-    // YACSWL_widget_add_child(&hmi_root_widget, &progress_bar.widget);
-
     /* Init status bar */
     vHMISB_init(&status_bar_data, &hmi_root_widget);
 
+    /* Init screen area widget */
+    YACSWL_widget_init(&hmi_screen_area_widget);
+    YACSWL_widget_set_size(&hmi_screen_area_widget, 
+                                hmi_lcd_frame.frame_x_width, 
+                                (hmi_lcd_frame.frame_y_heigth
+										- u16HMISB_get_height()
+										- 2)
+						   );
+    YACSWL_widget_set_pos(&(hmi_screen_area_widget),
+                                0,
+                                1);
+    YACSWL_widget_set_border_width(&hmi_screen_area_widget, 0u);
+    /* Add screen child to root widget */
+    YACSWL_widget_add_child(&hmi_root_widget, &hmi_screen_area_widget);
 
-    /* Finaly draw widgets */
+    /* Init each screens */
+    for (uint8_t i = 0; i < sizeof(hmi_screens)/sizeof(tsk_HMI_screen_t); i++)
+    {
+        hmi_screens[i].init(hmi_screens[i].data, &hmi_screen_area_widget);
+        if (i != 0)
+        {
+            /* For all but first screen, indicate to leave the screen */
+            hmi_screens[i].leave_screen();
+        }
+        else
+        {
+            /* For first screen indicate to enter the screen */
+            hmi_screens[i].enter_screen();
+        }
+    }
+
+    /* Finally draw widgets */
     YACSWL_widget_draw(&hmi_root_widget, &hmi_lcd_frame);
 
-
-
-    // UTIL_LCD_SetFont(&Font12);
-    // /* Set the LCD Text Color */
-    // UTIL_LCD_SetTextColor(SSD1315_COLOR_WHITE);
-    // UTIL_LCD_SetBackColor(SSD1315_COLOR_BLACK);
-    // BSP_LCD_Clear(0,SSD1315_COLOR_BLACK);
-
-    // UTIL_LCD_DisplayStringAt(0, 0, (uint8_t *)"Elektor demo clim", CENTER_MODE);
+    /* Refresh LCD screen */
     BSP_LCD_Refresh(0);
+
+    return;
 }
 
 void HMI_init_button(void)

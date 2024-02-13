@@ -51,6 +51,15 @@
 /******************** INCLUDES ***********************************************/
 #include "tsk_HMI_screen_main.h"
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <string.h>
+
+#include <YACSGL.h>
+#include <YACSWL.h>
+#include <YACSGL_font_8x16.h>
+
+
 /******************** CONSTANTS OF MODULE ************************************/
 
 /******************** MACROS DEFINITION **************************************/
@@ -58,10 +67,30 @@
 /******************** TYPE DEFINITION ****************************************/
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
+static YACSWL_widget_t HMI_SM_root_widget = {0};
 
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
 
 /******************** API FUNCTIONS ******************************************/
+void vHMISM_init(const void* const screen_main_data, YACSWL_widget_t* const root_widget)
+{
+    
+}
+
+void vHMISM_enter_screen()
+{
+    return;
+}
+
+void vHMISM_leave_screen()
+{
+    return;
+}
+
+void vHMISM_update(const void* const screen_main_data)
+{
+    return;
+}
 
 /******************** LOCAL FUNCTIONS ****************************************/
 

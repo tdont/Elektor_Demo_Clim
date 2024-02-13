@@ -54,7 +54,7 @@
 #define TASK_INC_TSK_HMI_SCREEN_MAIN_H_
 
 /******************** INCLUDES ***********************************************/
-
+#include <YACSWL.h>
 
 /******************** CONSTANTS OF MODULE ************************************/
 
@@ -63,9 +63,18 @@
 
 
 /******************** TYPE DEFINITION ****************************************/
-
+typedef struct
+{
+    float   ambiant_temperature;
+}tskHMI_screen_main_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
+void vHMISM_init(const void* const screen_main_data, YACSWL_widget_t* const root_widget);
+
+void vHMISM_enter_screen(void);
+void vHMISM_leave_screen(void);
+
+void vHMISM_update(const void* const screen_main_data);
 
 
 /******************** API FUNCTION PROTOTYPE *********************************/

@@ -126,7 +126,7 @@ void vHMISB_init(const tskHMI_status_bar_data_t* const status_bar_data, YACSWL_w
     /* Create label for temperature setpoint */
     YACSWL_label_init(&HMI_SB_lbl_temp_setpoint);
     YACSWL_label_set_font(&HMI_SB_lbl_temp_setpoint, &YACSGL_font_5x7);
-    vHMISB_display_temp_setpoint(&HMI_SB_lbl_temp_setpoint, status_bar_data->setpoint_temperature);
+    YACSWL_label_set_text(&HMI_SB_lbl_temp_setpoint, "00.0 oC");
     YACSWL_widget_set_border_width(&(HMI_SB_lbl_temp_setpoint.widget), 0u);
     YACSWL_widget_set_pos(&(HMI_SB_lbl_temp_setpoint.widget), 
                                 YACSWL_widget_get_width(root_widget) - YACSWL_widget_get_width(&(HMI_SB_lbl_temp_setpoint.widget)),
@@ -181,12 +181,17 @@ void vHMISB_update(const tskHMI_status_bar_data_t* const status_bar_data)
     return;
 }
 
+uint16_t u16HMISB_get_height(void)
+{
+    return YACSWL_widget_get_height(&HMI_SB_root_widget);
+}
+
 /******************** LOCAL FUNCTIONS ****************************************/
 static void vHMISB_display_temp_setpoint(YACSWL_label_t* const lbl_temp_setpoint, float setpoint_temperature)
 {
     static char temp_conf[HMI_SB_BUFF_CONV_TEMP] = {};
 
-    snprintf(temp_conf, HMI_SB_BUFF_CONV_TEMP, "%02.1f oC", setpoint_temperature);
+    snprintf(temp_conf, HMI_SB_BUFF_CONV_TEMP, "%2.1f oC", setpoint_temperature);
 
     YACSWL_label_set_text(lbl_temp_setpoint, temp_conf);
 
