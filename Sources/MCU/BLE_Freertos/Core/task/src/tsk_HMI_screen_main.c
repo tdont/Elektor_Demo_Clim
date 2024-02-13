@@ -57,7 +57,8 @@
 
 #include <YACSGL.h>
 #include <YACSWL.h>
-#include <YACSGL_font_8x16.h>
+//#include <YACSGL_font_8x16.h>
+#include <YACSGL_font_5x7.h>
 
 
 /******************** CONSTANTS OF MODULE ************************************/
@@ -65,30 +66,102 @@
 /******************** MACROS DEFINITION **************************************/
 
 /******************** TYPE DEFINITION ****************************************/
+typedef struct 
+{
+    bool init_complete;
+}HMISM_status_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
+static HMISM_status_t  HMI_SM_status = {0};
 static YACSWL_widget_t HMI_SM_root_widget = {0};
+static YACSWL_label_t  HMI_SM_lbl_ambient_temperature = {0};
 
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
 
 /******************** API FUNCTIONS ******************************************/
 void vHMISM_init(const void* const screen_main_data, YACSWL_widget_t* const root_widget)
 {
-    
+    /* Avoid multiple init */
+    if(HMI_SM_status.init_complete)
+    {
+        return;
+    }
+    if(screen_main_data == NULL)
+    {
+        return;
+    }
+    if(root_widget == NULL)
+    {
+        return;
+    }
+
+    /* Init root widget of screen (usefull to hide all at once) */
+    YACSWL_widget_init(&HMI_SM_root_widget);
+    YACSWL_widget_set_size(&HMI_SM_root_widget, 
+                                YACSWL_widget_get_width(root_widget), 
+                                YACSWL_widget_get_height(root_widget));
+    YACSWL_widget_set_border_width(&HMI_SM_root_widget, 0u);
+    YACSWL_widget_set_pos(&HMI_SM_root_widget, 
+                                YACSWL_widget_get_pos_x(root_widget),
+                                YACSWL_widget_get_pos_y(root_widget));
+
+    /* Add child to root widget */
+    YACSWL_widget_add_child(root_widget, &HMI_SM_root_widget);
+
+    /* Init ambient temperature label */
+    YACSWL_label_set_font(&HMI_SM_lbl_ambient_temperature, &YACSGL_font_5x7);
+    YACSWL_label_set_text(&HMI_SM_lbl_ambient_temperature, "25.9 oC");
+    YACSWL_widget_set_border_width(&(HMI_SM_lbl_ambient_temperature.widget), 0u);
+    YACSWL_widget_set_pos(&(HMI_SM_lbl_ambient_temperature.widget), 1, 1);
+    YACSWL_widget_add_child(&HMI_SM_root_widget, &HMI_SM_lbl_ambient_temperature.widget);
+    //YACSWL_widget_set_displayed(&HMI_SM_lbl_ambient_temperature.widget, false);
+
+
+    /* Indicate init is complete */
+    HMI_SM_status.init_complete = true;
 }
 
 void vHMISM_enter_screen()
 {
+    /* Ensure init was completed */
+    if(HMI_SM_status.init_complete == false)
+    {
+        return;
+    }
+
+    /* Display widget (and subwidget)*/
+    YACSWL_widget_set_displayed(&HMI_SM_root_widget, true);
+
     return;
 }
 
 void vHMISM_leave_screen()
 {
+    /* Ensure init was completed */
+    if(HMI_SM_status.init_complete == false)
+    {
+        return;
+    }
+
+    /* Hide widget (and subwidget)*/
+    YACSWL_widget_set_displayed(&HMI_SM_root_widget, false);
+
     return;
 }
 
 void vHMISM_update(const void* const screen_main_data)
 {
+    /* Ensure init was completed */
+    if(HMI_SM_status.init_complete == false)
+    {
+        return;
+    }
+    if(screen_main_data == NULL)
+    {
+        return;
+    }
+
+
     return;
 }
 

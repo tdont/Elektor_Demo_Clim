@@ -65,7 +65,7 @@
 /******************** TYPE DEFINITION ****************************************/
 typedef struct
 {
-    float   ambiant_temperature;
+    float   ambient_temperature;
 }tskHMI_screen_main_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/

@@ -65,7 +65,7 @@
 
 /* Definition of tasks StackSize */
 #define TSK_CNFG_STACKSIZE_WDGT                     (128)
-#define TSK_CNFG_STACKSIZE_HMI                      (256)
+#define TSK_CNFG_STACKSIZE_HMI                      (368)
 
 /* Definition of MSGOBJ (1 is reserved for CMCH Task) */
 

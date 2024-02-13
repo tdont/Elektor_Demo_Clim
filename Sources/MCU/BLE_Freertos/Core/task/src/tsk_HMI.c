@@ -62,6 +62,7 @@
 
 #include <YACSGL.h>
 #include <YACSGL_font_8x16.h>
+#include <YACSGL_font_5x7.h>
 #include <YACSWL.h>
 #include <ssd1315.h>
 
@@ -84,6 +85,7 @@ static tskHMI_status_bar_data_t status_bar_data = {0};
 static tskHMI_screen_main_t     screen_main_data = {0};
 
 static YACSWL_widget_t hmi_root_widget={0};
+static YACSWL_label_t  hmi_screen_label = {0};
 static YACSWL_widget_t hmi_screen_area_widget = {0};
 
 /* Register screens here */
@@ -98,6 +100,8 @@ static tsk_HMI_screen_t hmi_screens[] = { {"Ambient temperature",
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
 void HMI_init_display(void);
 void HMI_init_widget(void);
+void HMI_set_screen_label(const char* const text);
+
 void HMI_init_button(void);
 void BSP_PB_Callback(Button_TypeDef Button);
 
@@ -181,7 +185,7 @@ void HMI_init_display(void)
 
     /* Retrieve LCD size */
     BSP_LCD_GetXSize(0, &x_size);
-    BSP_LCD_GetYSize(0, &y_size);    
+    BSP_LCD_GetYSize(0, &y_size);
     hmi_lcd_frame.frame_x_width = (uint16_t) x_size;
     hmi_lcd_frame.frame_y_heigth= (uint16_t) y_size;
 
@@ -211,17 +215,26 @@ void HMI_init_widget(void)
     /* Init status bar */
     vHMISB_init(&status_bar_data, &hmi_root_widget);
 
+    /* TODO export label and screen area widget into tsk_HMI_screen */
+    /* Init screen label widget on top */
+    YACSWL_label_init(&hmi_screen_label);
+    YACSWL_label_set_font(&hmi_screen_label, &YACSGL_font_5x7);
+    HMI_set_screen_label("title");
+    YACSWL_widget_set_border_width(&(hmi_screen_label.widget), 0u);
+    YACSWL_widget_add_child(&hmi_root_widget, &hmi_screen_label.widget);
+
     /* Init screen area widget */
     YACSWL_widget_init(&hmi_screen_area_widget);
     YACSWL_widget_set_size(&hmi_screen_area_widget, 
                                 hmi_lcd_frame.frame_x_width, 
                                 (hmi_lcd_frame.frame_y_heigth
-										- u16HMISB_get_height()
-										- 2)
+                                        - (YACSWL_widget_get_height(&(hmi_screen_label.widget))
+										+ u16HMISB_get_height()
+										+ 7u))
 						   );
     YACSWL_widget_set_pos(&(hmi_screen_area_widget),
-                                0,
-                                1);
+                                0u,
+                                YACSWL_widget_get_height(&(hmi_screen_label.widget))- 2u);
     YACSWL_widget_set_border_width(&hmi_screen_area_widget, 0u);
     /* Add screen child to root widget */
     YACSWL_widget_add_child(&hmi_root_widget, &hmi_screen_area_widget);
@@ -239,6 +252,7 @@ void HMI_init_widget(void)
         {
             /* For first screen indicate to enter the screen */
             hmi_screens[i].enter_screen();
+            HMI_set_screen_label(hmi_screens[i].title);
         }
     }
 
@@ -248,6 +262,19 @@ void HMI_init_widget(void)
     /* Refresh LCD screen */
     BSP_LCD_Refresh(0);
 
+    return;
+}
+
+void HMI_set_screen_label(const char* const text)
+{
+    /* Set Text */
+    YACSWL_label_set_text(&hmi_screen_label, text);
+
+    /* Center on screen */
+    YACSWL_widget_set_pos(&(hmi_screen_label.widget), 
+                            (YACSWL_widget_get_width(&hmi_root_widget) -
+                                    YACSWL_widget_get_width(&hmi_screen_label.widget)) /2,
+                            0u);
     return;
 }
 
