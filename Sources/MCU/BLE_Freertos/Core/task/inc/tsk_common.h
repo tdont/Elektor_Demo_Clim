@@ -70,6 +70,12 @@ typedef enum
     TC_CLIM_MODE_COLD
 }tskCommon_clim_mode_e;
 
+typedef enum
+{
+    TC_BLE_MODE_BLE = 0,
+    TC_BLE_MODE_MANUAL
+}tskCommon_ble_mode_e;
+
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 
 /******************** API FUNCTION PROTOTYPE *********************************/

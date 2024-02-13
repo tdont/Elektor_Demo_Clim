@@ -54,6 +54,7 @@
 #include <stdint.h>
 #include <FreeRTOS.h>
 #include <queue.h>
+#include <task.h>
 
 #include <stm32_lcd.h>
 #include <stm32wb5mm_dk_lcd.h>
@@ -121,6 +122,17 @@ void vHMI_task(void* pv_param_task)
         
         /* TODO handle screen refresh */
 
+    	//vTaskDelay(50);
+        status_bar_data.setpoint_temperature+=0.1;
+
+        /* Refresh status bar */
+        vHMISB_update(&status_bar_data);
+
+
+        YACSWL_widget_draw(&hmi_root_widget, &hmi_lcd_frame);
+        BSP_LCD_Refresh(0);
+
+
 
         /* Compute elapsed time since last Heartbeat message */
         elapsed_time_ms = (xTaskGetTickCount() - hb_sending_tick) * portTICK_RATE_MS;
@@ -181,13 +193,13 @@ void HMI_init_display(void)
     YACSWL_widget_set_background_color(&hmi_root_widget, YACSGL_P_WHITE);
 
 
-    YACSWL_progress_bar_init(&progress_bar);
-    YACSWL_widget_set_border_width(&progress_bar.widget, 1u);
-    YACSWL_widget_set_size(&progress_bar.widget, 70u, 5u);
-    YACSWL_widget_set_pos(&progress_bar.widget, 5u, 5u);
+    // YACSWL_progress_bar_init(&progress_bar);
+    // YACSWL_widget_set_border_width(&progress_bar.widget, 1u);
+    // YACSWL_widget_set_size(&progress_bar.widget, 70u, 5u);
+    // YACSWL_widget_set_pos(&progress_bar.widget, 5u, 5u);
 
-    progress_bar.progress = 75u;
-    YACSWL_widget_add_child(&hmi_root_widget, &progress_bar.widget);
+    // progress_bar.progress = 75u;
+    // YACSWL_widget_add_child(&hmi_root_widget, &progress_bar.widget);
 
     /* Init status bar */
     vHMISB_init(&status_bar_data, &hmi_root_widget);
