@@ -57,8 +57,8 @@
 
 #include <YACSGL.h>
 #include <YACSWL.h>
-//#include <YACSGL_font_8x16.h>
-#include <YACSGL_font_5x7.h>
+#include <YACSGL_font_8x16.h>
+//#include <YACSGL_font_5x7.h>
 
 
 /******************** CONSTANTS OF MODULE ************************************/
@@ -109,13 +109,12 @@ void vHMISM_init(const void* const screen_main_data, YACSWL_widget_t* const root
     YACSWL_widget_add_child(root_widget, &HMI_SM_root_widget);
 
     /* Init ambient temperature label */
-    YACSWL_label_set_font(&HMI_SM_lbl_ambient_temperature, &YACSGL_font_5x7);
-    YACSWL_label_set_text(&HMI_SM_lbl_ambient_temperature, "25.9 oC");
+    YACSWL_label_init(&HMI_SM_lbl_ambient_temperature);
+    YACSWL_label_set_font(&HMI_SM_lbl_ambient_temperature, &YACSGL_font_8x16);
+    YACSWL_label_set_text(&HMI_SM_lbl_ambient_temperature, "29.0 oC");
     YACSWL_widget_set_border_width(&(HMI_SM_lbl_ambient_temperature.widget), 0u);
-    YACSWL_widget_set_pos(&(HMI_SM_lbl_ambient_temperature.widget), 1, 1);
-    YACSWL_widget_add_child(&HMI_SM_root_widget, &HMI_SM_lbl_ambient_temperature.widget);
-    //YACSWL_widget_set_displayed(&HMI_SM_lbl_ambient_temperature.widget, false);
-
+    YACSWL_widget_add_child(&HMI_SM_root_widget, &HMI_SM_lbl_ambient_temperature.widget);    
+    YACSWL_widget_center_in_parent(&HMI_SM_lbl_ambient_temperature);
 
     /* Indicate init is complete */
     HMI_SM_status.init_complete = true;

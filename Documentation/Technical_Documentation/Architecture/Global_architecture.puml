@@ -21,6 +21,7 @@ frame SoftwareArchitecture_democratic_clim{
         component OLED_SCREEN
     }
     rectangle tsk_main
+    rectangle tsk_TOF
     rectangle tsk_HMI
     rectangle tsk_IR_tx_atlantic
     rectangle tsk_BLE
@@ -31,7 +32,7 @@ frame SoftwareArchitecture_democratic_clim{
     component HW_WDG
 
     queue hmi_setpoint
-    queue hmi_feedback
+    queue hmi_input
     queue ble_setpoint
     queue consolidated_setpoint
     queue ble_feedback
@@ -45,10 +46,11 @@ frame SoftwareArchitecture_democratic_clim{
         pairing_request
     }
 
-    note right of hmi_feedback{
+    note right of hmi_input{
         ble_statistics
         temperature_status
         temperature_consolidated
+        tof_dist as an analog dialer
     }
 
     note top of ble_feedback{
@@ -72,11 +74,15 @@ frame SoftwareArchitecture_democratic_clim{
 
 
 'Relation between component
-tof --> tsk_HMI
+
 button --> tsk_HMI
 touch_button --> tsk_HMI
 tsk_HMI --> OLED_SCREEN
 tsk_HMI --> hmi_setpoint
+
+tof --> tsk_TOF
+tsk_TOF --> hmi_input
+
 
 ble_setpoint <-- tsk_BLE 
 
@@ -96,8 +102,8 @@ temperature_sensor --> tsk_temp_sensor
 tsk_temp_sensor --> temperature_status
 temperature_status --> tsk_main
 
-hmi_feedback <-- tsk_main 
-tsk_HMI <-- hmi_feedback 
+hmi_input <-- tsk_main 
+tsk_HMI <-- hmi_input 
 
 wdg_feed --> tsk_watchdog
 tsk_watchdog --> HW_WDG

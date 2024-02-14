@@ -55,23 +55,27 @@
 #define TSK_CNFG_DISABLE_HW_WATCHDOG                1
 
 #define TSK_CNFG_MONITORED_ID_HMI                  (0)
+#define TSK_CNFG_MONITORED_ID_TEMP                 (1)
 /* Must be at the end of the task id list (indicates the number of task monitored) */
-#define TSK_CNFG_MONITORED_ID_CNT                   (TSK_CNFG_MONITORED_ID_HMI + 1)
+#define TSK_CNFG_MONITORED_ID_CNT                   (TSK_CNFG_MONITORED_ID_TEMP + 1)
 
 /* Definition of tasks priority */
 #define TSK_CNFG_PRIORITY_HMI                   	(configMAX_PRIORITIES - 4)
+#define TSK_CNFG_PRIORITY_TEMP                      (configMAX_PRIORITIES - 3)
 #define TSK_CNFG_PRIORITY_WDGT                      (2)     /* Lowest priority task of monitored task */
 #define TSK_CNFG_PRIORITY_NON_MONITORED             (1)     /* Non monitored task (if any) Just above idle task */
 
 /* Definition of tasks StackSize */
 #define TSK_CNFG_STACKSIZE_WDGT                     (128)
 #define TSK_CNFG_STACKSIZE_HMI                      (368)
+#define TSK_CNFG_STACKSIZE_TEMP                     (256)
 
 /* Definition of MSGOBJ (1 is reserved for CMCH Task) */
 
 /* Definition of tasks name for debug */
 #define TSK_CNFG_NAME_WDGT               		"TaskWDGT"
 #define TSK_CNFG_NAME_HMI               		"TaskHMI"
+#define TSK_CNFG_NAME_TEMP                      "TaskTEMP"
 
 /* Definition of Queue name for debug */
 #define TSK_CNFG_QUEUE_NAME_HB_TO_WDG           "QueHbToWdg"

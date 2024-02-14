@@ -165,7 +165,6 @@ void vHMI_task(void* pv_param_task)
             /* Increment HB counter */
             heartbeat.hb_counter = heartbeat.hb_counter + 1;
 
-            /*-----REQ_SW_S000001_APRT_011-----*/
             /* Send heartbeat */
             xQueueSend(task_param->queue_hb_to_watchdog, &heartbeat, 0); /* Don't wait on queue*/
 
@@ -219,9 +218,9 @@ void HMI_init_widget(void)
     /* Init screen label widget on top */
     YACSWL_label_init(&hmi_screen_label);
     YACSWL_label_set_font(&hmi_screen_label, &YACSGL_font_5x7);
-    HMI_set_screen_label("title");
     YACSWL_widget_set_border_width(&(hmi_screen_label.widget), 0u);
     YACSWL_widget_add_child(&hmi_root_widget, &hmi_screen_label.widget);
+    HMI_set_screen_label("title");
 
     /* Init screen area widget */
     YACSWL_widget_init(&hmi_screen_area_widget);
@@ -271,10 +270,8 @@ void HMI_set_screen_label(const char* const text)
     YACSWL_label_set_text(&hmi_screen_label, text);
 
     /* Center on screen */
-    YACSWL_widget_set_pos(&(hmi_screen_label.widget), 
-                            (YACSWL_widget_get_width(&hmi_root_widget) -
-                                    YACSWL_widget_get_width(&hmi_screen_label.widget)) /2,
-                            0u);
+    YACSWL_widget_center_width_in_parent(&(hmi_screen_label.widget));
+
     return;
 }
 
