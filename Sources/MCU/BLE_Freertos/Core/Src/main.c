@@ -53,6 +53,7 @@
 #include "tsk_HMI.h"
 #include "tsk_TEMP.h"
 #include "tsk_MAIN.h"
+#include "tsk_TOF.h"
 
 /* USER CODE END Includes */
 
@@ -77,6 +78,7 @@
 static tskWDGT_TaskParam_t          param_WDGT = {0};
 static tskHMI_TaskParam_t           param_HMI = {0};
 static tskTEMP_TaskParam_t          param_TEMP = {0};
+static tskTOF_TaskParam_t           param_TOF = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -274,6 +276,7 @@ static void vSetupOsExchangeObject(void)
     param_WDGT.queueHbFromMonitoredTask = tmpQueueHandle;
     param_HMI.queue_hb_to_watchdog = tmpQueueHandle;
     param_TEMP.queue_hb_to_watchdog = tmpQueueHandle;
+    param_TOF.queue_hb_to_watchdog = tmpQueueHandle;
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HB_TO_WDG);
 
@@ -348,6 +351,18 @@ static void vStartTasks(void)
     /* TEMP thread */
     ret = xTaskCreate(vTEMP_task, (const char * const) TSK_CNFG_NAME_TEMP,
                         TSK_CNFG_STACKSIZE_TEMP, &param_TEMP, TSK_CNFG_PRIORITY_TEMP,
+                        (xTaskHandle *) NULL);
+
+    /* Check whether task was created */
+    if (ret != pdTRUE)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+
+    /* TOF thread */
+    ret = xTaskCreate(vTOF_task, (const char * const) TSK_CNFG_NAME_TOF,
+                        TSK_CNFG_STACKSIZE_TOF, &param_TEMP, TSK_CNFG_PRIORITY_TOF,
                         (xTaskHandle *) NULL);
 
     /* Check whether task was created */
