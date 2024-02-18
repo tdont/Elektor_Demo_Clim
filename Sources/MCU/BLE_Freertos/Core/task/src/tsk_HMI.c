@@ -53,6 +53,10 @@
 
 #include <stdint.h>
 #include <FreeRTOS.h>
+#include <HMI_screen.h>
+#include <HMI_screen_main.h>
+#include <HMI_status_bar.h>
+#include <HMI_screen_ctrl_mode.h>
 #include <queue.h>
 #include <task.h>
 
@@ -68,9 +72,6 @@
 
 #include "tsk_common.h"
 #include "tsk_config.h"
-#include "tsk_HMI_screen.h"
-#include "tsk_HMI_status_bar.h"
-#include "tsk_HMI_screen_main.h"
 
 
 /******************** CONSTANTS OF MODULE ************************************/
@@ -78,24 +79,41 @@
 /******************** MACROS DEFINITION **************************************/
 
 /******************** TYPE DEFINITION ****************************************/
+typedef struct
+{
+    uint8_t cur_screen_idx;
+}tsk_hmi_status_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 static YACSGL_frame_t hmi_lcd_frame = {0};
 static tskHMI_status_bar_data_t status_bar_data = {0};
-static tskHMI_screen_main_t     screen_main_data = {0};
+static HMI_screen_main_t        screen_main_data = {0};
+static HMI_screen_ctrl_mode_t   screen_ctrl_mode_data = {0};
 
 static YACSWL_widget_t hmi_root_widget={0};
 static YACSWL_label_t  hmi_screen_label = {0};
 static YACSWL_widget_t hmi_screen_area_widget = {0};
 
+static xQueueHandle         queue_btn_to_hmi = 0;
+static tsk_hmi_status_t     tsk_status = {0};
+
 /* Register screens here */
-static tsk_HMI_screen_t hmi_screens[] = { {"Ambient temperature",
+static tsk_HMI_screen_t hmi_screens[] = {   /* First screen in array is the main screen */
+                                            {"Ambient temperature",
                                             (void*)&screen_main_data,
                                             vHMISM_init,
                                             vHMISM_enter_screen,
                                             vHMISM_leave_screen,
-                                            vHMISM_update}
+                                            vHMISM_update},
+                                            {"Control mode",
+                                            (void*)&screen_ctrl_mode_data,
+                                            vHMICM_init,
+                                            vHMICM_enter_screen,
+                                            vHMICM_leave_screen,
+                                            vHMICM_update}
                                         };
+
+#define HMI_NB_SCREEN   (sizeof(hmi_screens)/sizeof(tsk_HMI_screen_t))
 
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
 void HMI_init_display(void);
@@ -111,6 +129,11 @@ void HMI_handle_incomming_messages_feedback(tskHMI_TaskParam_t* task_param);
 void HMI_handle_incomming_messages_fdbk_temperature(tskHMI_TaskParam_t* task_param, 
                                         const tskHMI_msg_fdbk_pld_temperature_t* const temp_pld);
 
+void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param);
+
+void HMI_go_to_main_screen(void);
+void HMI_go_to_next_screen(void);
+
 void HMI_init_button(void);
 void BSP_PB_Callback(Button_TypeDef Button);
 
@@ -123,7 +146,6 @@ void vHMI_task(void* pv_param_task)
     portTickType hb_sending_tick = 0;    
     portBASE_TYPE ret = pdFAIL;
     xQueueSetHandle queue_set_hdl = 0;
-    uint8_t current_screen_index = 0;
 
     heartbeat.tsk_id = TSK_CNFG_MONITORED_ID_HMI;
     heartbeat.hb_counter = 0;
@@ -161,7 +183,16 @@ void vHMI_task(void* pv_param_task)
         /* Enter error loop */
         vTskCommon_ErrorLoop();
     }
+    ret = xQueueAddToSet(task_param->queue_hmi_btn, queue_set_hdl);
+    if (ret != pdPASS)
+    {
+        /* Enter error loop */
+        vTskCommon_ErrorLoop();
+    }
     /* TODO add here new queue (ex TOF sensor) */
+
+    /* Now ready to set queue for BTN irq */
+    queue_btn_to_hmi = task_param->queue_hmi_btn;
 
     while (1) /* Task loop */
     {
@@ -188,12 +219,12 @@ void vHMI_task(void* pv_param_task)
         /* TODO handle transition between screen */
         
             /* handle screen refresh of new screen */
-            //hmi_screens[current_screen_index].update(hmi_screens[current_screen_index].data);
+            //hmi_screens[cur_screen_idx].update(hmi_screens[cur_screen_idx].data);
 
         /* Refresh status bar */
         vHMISB_update(&status_bar_data);
         /* Refresh current screen */
-        hmi_screens[current_screen_index].update(hmi_screens[current_screen_index].data);
+        hmi_screens[tsk_status.cur_screen_idx].update(hmi_screens[tsk_status.cur_screen_idx].data);
 
         YACSWL_widget_draw(&hmi_root_widget, &hmi_lcd_frame);
         BSP_LCD_Refresh(0);
@@ -281,7 +312,7 @@ void HMI_init_widget(void)
     YACSWL_widget_add_child(&hmi_root_widget, &hmi_screen_area_widget);
 
     /* Init each screens */
-    for (uint8_t i = 0; i < sizeof(hmi_screens)/sizeof(tsk_HMI_screen_t); i++)
+    for (uint8_t i = 0; i < HMI_NB_SCREEN; i++)
     {
         hmi_screens[i].init(hmi_screens[i].data, &hmi_screen_area_widget);
         if (i != 0)
@@ -343,6 +374,10 @@ void HMI_handle_incomming_messages(tskHMI_TaskParam_t* task_param,
         /* Handle message from Autopilot */
         HMI_handle_incomming_messages_feedback(task_param);
     }
+    else if(queue_hdl_data_available == task_param->queue_hmi_btn)
+    {
+        HMI_handle_incomming_messages_btn(task_param);
+    }
 }
 
 void HMI_handle_incomming_messages_feedback(tskHMI_TaskParam_t* task_param)
@@ -376,6 +411,53 @@ void HMI_handle_incomming_messages_fdbk_temperature(tskHMI_TaskParam_t* task_par
     screen_main_data.ambient_temperature = temp_pld->temperature;
 }
 
+void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param)
+{
+    static Button_TypeDef btn_pressed = BUTTON_USER1;
+    portBASE_TYPE ret = 0;
+
+    /* Retrieve message from queue */
+    ret = xQueueReceive(task_param->queue_hmi_btn, (void*) &btn_pressed, 0);
+
+    if(ret == pdPASS)
+    {
+        switch(btn_pressed)
+        {
+            case BUTTON_USER1:
+                /* Go to next screen */
+                HMI_go_to_next_screen();
+                break;
+            case BUTTON_USER2:
+                /* Enter / Leave edit mode */
+                break;
+            default:
+                /* Do nothing */
+                break;
+        }
+    }
+}
+
+void HMI_go_to_main_screen(void)
+{
+    hmi_screens[tsk_status.cur_screen_idx].leave_screen();
+    tsk_status.cur_screen_idx = 0;
+    hmi_screens[tsk_status.cur_screen_idx].enter_screen();
+    /* Update title */
+    HMI_set_screen_label(hmi_screens[tsk_status.cur_screen_idx].title);
+}
+
+void HMI_go_to_next_screen(void)
+{
+    hmi_screens[tsk_status.cur_screen_idx].leave_screen();
+    tsk_status.cur_screen_idx++;
+    if(tsk_status.cur_screen_idx >= HMI_NB_SCREEN)
+    {
+        tsk_status.cur_screen_idx = 0;
+    }
+    hmi_screens[tsk_status.cur_screen_idx].enter_screen();
+    /* Update title */
+    HMI_set_screen_label(hmi_screens[tsk_status.cur_screen_idx].title);
+}
 
 void HMI_init_button(void)
 {
@@ -385,15 +467,22 @@ void HMI_init_button(void)
 
 void BSP_PB_Callback(Button_TypeDef btn)
 {
-	if(btn == BUTTON_USER1)
-	{
-		UTIL_LCD_DisplayStringAt(0, 15, (uint8_t *)"Btn 1 pressed", CENTER_MODE);
-	}
-	else
-	{
-		UTIL_LCD_DisplayStringAt(0, 30, (uint8_t *)"Btn 2 pressed", CENTER_MODE);
-	}
-	BSP_LCD_Refresh(0);
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    /* If init is not complete */
+    if(queue_btn_to_hmi == NULL)
+    {
+        return;
+    }
+
+    /* Send which btn was pressed */
+    xQueueSendToBackFromISR(queue_btn_to_hmi, &btn, &xHigherPriorityTaskWoken);
+
+    if(xHigherPriorityTaskWoken != pdFALSE)
+    {
+        /* Giving queue may have unlocked a task, call scheduler */
+        portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+    }
 }
 /**\} */
 /**\} */

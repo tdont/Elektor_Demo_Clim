@@ -277,7 +277,7 @@ static void vSetupOsExchangeObject(void)
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HB_TO_WDG);
 
-    /* Create Queue for message to main transmission */
+    /* Create Queue for message to HMI transmission */
     tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_TO_HMI, sizeof(tskHMI_msg_fdbk_msg_t));
     /* Check for an error */
     if (tmpQueueHandle == 0)
@@ -291,6 +291,19 @@ static void vSetupOsExchangeObject(void)
     param_TEMP.queue_temperature_sts = tmpQueueHandle;
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_TO_HMI);
+
+    /* Create Queue for btn to hmi transmission */
+    tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_BTN_TO_HMI, sizeof(Button_TypeDef));
+    /* Check for an error */
+    if (tmpQueueHandle == 0)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+    /* Store the value to tasks parameters */
+    param_HMI.queue_hmi_btn = tmpQueueHandle;
+    /* Add queue to registry */
+    vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_BTN_TO_HMI);
 
 
     /* TODO create more semaphore here*/

@@ -49,8 +49,7 @@
  */
 
 /******************** INCLUDES ***********************************************/
-#include "tsk_HMI_status_bar.h"
-
+#include <HMI_status_bar.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>

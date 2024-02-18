@@ -49,8 +49,7 @@
  */
 
 /******************** INCLUDES ***********************************************/
-#include "tsk_HMI_screen_main.h"
-
+#include <HMI_screen_main.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
@@ -71,9 +70,9 @@ typedef struct
 }HMISM_status_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
-static HMISM_status_t  HMI_SM_status = {0};
-static YACSWL_widget_t HMI_SM_root_widget = {0};
-static YACSWL_label_t  HMI_SM_lbl_ambient_temperature = {0};
+static HMISM_status_t  HMI_CM_status = {0};
+static YACSWL_widget_t HMI_CM_root_widget = {0};
+static YACSWL_label_t  HMI_CM_lbl_ctrl_mode = {0};
 
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
 static void vHMISM_display_temp_value(YACSWL_label_t* const lbl_temp_ambiant, float temperature);
@@ -82,7 +81,7 @@ static void vHMISM_display_temp_value(YACSWL_label_t* const lbl_temp_ambiant, fl
 void vHMISM_init(const void* const screen_main_data, YACSWL_widget_t* const root_widget)
 {
     /* Avoid multiple init */
-    if(HMI_SM_status.init_complete)
+    if(HMI_CM_status.init_complete)
     {
         return;
     }
@@ -96,40 +95,40 @@ void vHMISM_init(const void* const screen_main_data, YACSWL_widget_t* const root
     }
 
     /* Init root widget of screen (usefull to hide all at once) */
-    YACSWL_widget_init(&HMI_SM_root_widget);
-    YACSWL_widget_set_size(&HMI_SM_root_widget, 
+    YACSWL_widget_init(&HMI_CM_root_widget);
+    YACSWL_widget_set_size(&HMI_CM_root_widget, 
                                 YACSWL_widget_get_width(root_widget), 
                                 YACSWL_widget_get_height(root_widget));
-    YACSWL_widget_set_border_width(&HMI_SM_root_widget, 0u);
-    YACSWL_widget_set_pos(&HMI_SM_root_widget, 
+    YACSWL_widget_set_border_width(&HMI_CM_root_widget, 0u);
+    YACSWL_widget_set_pos(&HMI_CM_root_widget, 
                                 YACSWL_widget_get_pos_x(root_widget),
                                 YACSWL_widget_get_pos_y(root_widget));
 
     /* Add child to root widget */
-    YACSWL_widget_add_child(root_widget, &HMI_SM_root_widget);
+    YACSWL_widget_add_child(root_widget, &HMI_CM_root_widget);
 
     /* Init ambient temperature label */
-    YACSWL_label_init(&HMI_SM_lbl_ambient_temperature);
-    YACSWL_label_set_font(&HMI_SM_lbl_ambient_temperature, &YACSGL_font_8x16);
-    YACSWL_label_set_text(&HMI_SM_lbl_ambient_temperature, "29.0 oC");
-    YACSWL_widget_set_border_width(&(HMI_SM_lbl_ambient_temperature.widget), 0u);
-    YACSWL_widget_add_child(&HMI_SM_root_widget, &HMI_SM_lbl_ambient_temperature.widget);    
-    YACSWL_widget_center_in_parent(&HMI_SM_lbl_ambient_temperature);
+    YACSWL_label_init(&HMI_CM_lbl_ctrl_mode);
+    YACSWL_label_set_font(&HMI_CM_lbl_ctrl_mode, &YACSGL_font_8x16);
+    YACSWL_label_set_text(&HMI_CM_lbl_ctrl_mode, "29.0 oC");
+    YACSWL_widget_set_border_width(&(HMI_CM_lbl_ctrl_mode.widget), 0u);
+    YACSWL_widget_add_child(&HMI_CM_root_widget, &HMI_CM_lbl_ctrl_mode.widget);    
+    YACSWL_widget_center_in_parent(&HMI_CM_lbl_ctrl_mode);
 
     /* Indicate init is complete */
-    HMI_SM_status.init_complete = true;
+    HMI_CM_status.init_complete = true;
 }
 
 void vHMISM_enter_screen()
 {
     /* Ensure init was completed */
-    if(HMI_SM_status.init_complete == false)
+    if(HMI_CM_status.init_complete == false)
     {
         return;
     }
 
     /* Display widget (and subwidget)*/
-    YACSWL_widget_set_displayed(&HMI_SM_root_widget, true);
+    YACSWL_widget_set_displayed(&HMI_CM_root_widget, true);
 
     return;
 }
@@ -137,13 +136,13 @@ void vHMISM_enter_screen()
 void vHMISM_leave_screen()
 {
     /* Ensure init was completed */
-    if(HMI_SM_status.init_complete == false)
+    if(HMI_CM_status.init_complete == false)
     {
         return;
     }
 
     /* Hide widget (and subwidget)*/
-    YACSWL_widget_set_displayed(&HMI_SM_root_widget, false);
+    YACSWL_widget_set_displayed(&HMI_CM_root_widget, false);
 
     return;
 }
@@ -151,7 +150,7 @@ void vHMISM_leave_screen()
 void vHMISM_update(const void* const screen_main_data)
 {
     /* Ensure init was completed */
-    if(HMI_SM_status.init_complete == false)
+    if(HMI_CM_status.init_complete == false)
     {
         return;
     }
@@ -159,10 +158,10 @@ void vHMISM_update(const void* const screen_main_data)
     {
         return;
     }
-    const tskHMI_screen_main_t* const data = (const tskHMI_screen_main_t* const) screen_main_data;
+    const HMI_screen_main_t* const data = (const HMI_screen_main_t* const) screen_main_data;
 
     /* Update temperature */
-    vHMISM_display_temp_value(&HMI_SM_lbl_ambient_temperature, data->ambient_temperature);
+    vHMISM_display_temp_value(&HMI_CM_lbl_ctrl_mode, data->ambient_temperature);
 
     return;
 }

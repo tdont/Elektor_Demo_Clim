@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32wbxx_it.h"
+#include "stm32wb5mm_dk.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -247,5 +248,9 @@ void DMA2_Channel4_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+void EXTI15_10_IRQHandler(void)
+{
+  BSP_PB_IRQHandler(BUTTON_USER1);
+}
 
 /* USER CODE END 1 */

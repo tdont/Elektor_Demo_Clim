@@ -76,6 +76,7 @@ typedef enum
 typedef struct
 {
  xQueueHandle queue_hmi_feedback;
+ xQueueHandle queue_hmi_btn;
  xQueueHandle queue_hmi_setpoint;
  xQueueHandle queue_hb_to_watchdog;
 }tskHMI_TaskParam_t;

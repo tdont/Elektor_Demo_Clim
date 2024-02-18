@@ -50,11 +50,11 @@
 
 
 /* Prevent multiple inclusions */
-#ifndef TASK_INC_TSK_HMI_SCREEN_H_
-#define TASK_INC_TSK_HMI_SCREEN_H_
+#ifndef TASK_INC_HMI_SCREEN_H_
+#define TASK_INC_HMI_SCREEN_H_
 
 /******************** INCLUDES ***********************************************/
-
+#include <YACSWL.h>
 
 /******************** CONSTANTS OF MODULE ************************************/
 
@@ -79,7 +79,7 @@ typedef struct
 
 /******************** API FUNCTION PROTOTYPE *********************************/
 
-#endif /* TASK_INC_TSK_HMI_SCREEN_H_ */
+#endif /* TASK_INC_HMI_SCREEN_H_ */
 
 /**\} */
 /**\} */

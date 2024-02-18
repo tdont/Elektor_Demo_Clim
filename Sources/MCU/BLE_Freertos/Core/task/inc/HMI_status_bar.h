@@ -27,7 +27,7 @@
  * \{ */
 
 /**
- * \file tsk_HMI_screen_main.h
+ * \file tsk_HMI_status_bar.h
  *
  * File description
  * \author Thibaut DONTAIL
@@ -50,11 +50,16 @@
 
 
 /* Prevent multiple inclusions */
-#ifndef TASK_INC_TSK_HMI_SCREEN_MAIN_H_
-#define TASK_INC_TSK_HMI_SCREEN_MAIN_H_
+#ifndef TASK_INC_HMI_STATUS_BAR_H_
+#define TASK_INC_HMI_STATUS_BAR_H_
 
 /******************** INCLUDES ***********************************************/
+#include <YACSGL.h>
 #include <YACSWL.h>
+
+#include <stdbool.h>
+
+#include "tsk_common.h"
 
 /******************** CONSTANTS OF MODULE ************************************/
 
@@ -65,21 +70,23 @@
 /******************** TYPE DEFINITION ****************************************/
 typedef struct
 {
-    float   ambient_temperature;
-}tskHMI_screen_main_t;
+    float                   setpoint_temperature;
+    tskCommon_ble_mode_e    ble_manual_mode;
+    uint8_t                 nb_device_connected;
+    tskCommon_clim_mode_e   clim_mode; 
+
+}tskHMI_status_bar_data_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
-void vHMISM_init(const void* const screen_main_data, YACSWL_widget_t* const root_widget);
-
-void vHMISM_enter_screen(void);
-void vHMISM_leave_screen(void);
-
-void vHMISM_update(const void* const screen_main_data);
 
 
 /******************** API FUNCTION PROTOTYPE *********************************/
+void vHMISB_init(const tskHMI_status_bar_data_t* const status_bar_data, YACSWL_widget_t* const root_widget);
 
-#endif /* TASK_INC_TSK_HMI_SCREEN_MAIN_H_ */
+void vHMISB_update(const tskHMI_status_bar_data_t* const status_bar_data);
+
+uint16_t u16HMISB_get_height(void);
+#endif /* TASK_INC_HMI_STATUS_BAR_H_ */
 
 /**\} */
 /**\} */
