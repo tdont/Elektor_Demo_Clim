@@ -52,6 +52,7 @@
 #include "tsk_HMI.h"
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <FreeRTOS.h>
 #include <HMI_screen.h>
 #include <HMI_screen_main.h>
@@ -81,7 +82,9 @@
 /******************** TYPE DEFINITION ****************************************/
 typedef struct
 {
-    uint8_t cur_screen_idx;
+    uint8_t         cur_screen_idx;
+    portTickType    screen_change_tick;
+    bool            edit_in_progress;
 }tsk_hmi_status_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
@@ -133,6 +136,7 @@ void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param);
 
 void HMI_go_to_main_screen(void);
 void HMI_go_to_next_screen(void);
+void HMI_evaluate_autotransition_to_main(void);
 
 void HMI_init_button(void);
 void BSP_PB_Callback(Button_TypeDef Button);
@@ -216,10 +220,8 @@ void vHMI_task(void* pv_param_task)
             }
         }
 
-        /* TODO handle transition between screen */
-        
-            /* handle screen refresh of new screen */
-            //hmi_screens[cur_screen_idx].update(hmi_screens[cur_screen_idx].data);
+        /* handle transition back to main */
+        HMI_evaluate_autotransition_to_main();
 
         /* Refresh status bar */
         vHMISB_update(&status_bar_data);
@@ -457,6 +459,28 @@ void HMI_go_to_next_screen(void)
     hmi_screens[tsk_status.cur_screen_idx].enter_screen();
     /* Update title */
     HMI_set_screen_label(hmi_screens[tsk_status.cur_screen_idx].title);
+
+    /* Store time to remember when last change occured */
+    tsk_status.screen_change_tick = xTaskGetTickCount();
+}
+
+void HMI_evaluate_autotransition_to_main(void)
+{
+    if(tsk_status.edit_in_progress == true)
+    {
+        /* Do not switch screen if edit is in progress */
+        return;
+    }
+    if(tsk_status.screen_change_tick == 0)
+    {
+        return;
+    }
+
+    if((xTaskGetTickCount() - tsk_status.screen_change_tick) > HMI_DURATION_ROLLBACK_MAIN_SCREEN_MS)
+    {
+        tsk_status.screen_change_tick = 0;
+        HMI_go_to_main_screen();
+    }
 }
 
 void HMI_init_button(void)

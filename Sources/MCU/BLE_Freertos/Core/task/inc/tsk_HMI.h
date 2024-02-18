@@ -62,6 +62,8 @@
 #define HMI_HB_SEND_TIME_MS     200  /* Indicate when the task shall send a heartbeat */
 #define HMI_TASK_LOOP_TIME_MS   20  
 
+#define HMI_DURATION_ROLLBACK_MAIN_SCREEN_MS    10000   /* 10 second to go back to main */
+
 typedef enum
 {
     HMI_MSG_FDBK_ID_TEMP = 0
