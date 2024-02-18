@@ -77,9 +77,10 @@ typedef enum
 /******************** TYPE DEFINITION ****************************************/
 typedef struct
 {
- xQueueHandle queue_hmi_feedback;
- xQueueHandle queue_hmi_btn;
- xQueueHandle queue_hmi_setpoint;
+ xQueueHandle queue_hmi_feedback;       /* Queue receiving feedback from main task */
+ xQueueHandle queue_hmi_btn;            /* Queue receiving btn pressed information */
+ xQueueHandle queue_hmi_distance;       /* Queue receiving distances for analog control */
+ xQueueHandle queue_hmi_setpoint;       /* Queue defining setpoint to send to main task */
  xQueueHandle queue_hb_to_watchdog;
 }tskHMI_TaskParam_t;
 

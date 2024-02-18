@@ -73,6 +73,12 @@ typedef struct
  xQueueHandle queue_hb_to_watchdog;
 }tskTOF_TaskParam_t;
 
+typedef struct
+{
+    uint16_t distance_mm;
+}tskTOF_queue_msg_t;
+
+
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 
 

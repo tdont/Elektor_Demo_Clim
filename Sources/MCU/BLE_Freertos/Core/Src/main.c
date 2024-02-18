@@ -308,6 +308,20 @@ static void vSetupOsExchangeObject(void)
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_BTN_TO_HMI);
 
+     /* Create Queue for tof to hmi transmission */
+    tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_TOF_TO_HMI, sizeof(tskTOF_queue_msg_t));
+    /* Check for an error */
+    if (tmpQueueHandle == 0)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+    /* Store the value to tasks parameters */
+    param_HMI.queue_hmi_distance = tmpQueueHandle;
+    param_TOF.queue_tof_distance = tmpQueueHandle;
+    /* Add queue to registry */
+    vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_TOF_TO_HMI);
+
 
     /* TODO create more semaphore here*/
 }
