@@ -61,6 +61,7 @@
 
 #include "tsk_common.h"
 #include "tsk_config.h"
+#include "tsk_HMI.h"
 
 
 /******************** CONSTANTS OF MODULE ************************************/
@@ -107,6 +108,12 @@ void vTEMP_task(void *pv_param_task)
 
     float temp_raw_value = 0.0;
     float filtered_value = 10.0;
+    static tskHMI_msg_fdbk_msg_t msg_temp_to_hmi = {0};
+    tskHMI_msg_fdbk_pld_temperature_t* const temperature_payload = &(msg_temp_to_hmi.payload.temp_pld);
+    msg_temp_to_hmi.header.fdbk_id = HMI_MSG_FDBK_ID_TEMP;
+
+    /* TODO fix dummy wait (synchronise with task that shall create a queue set )*/
+    vTaskDelay(1000 / portTICK_RATE_MS);
 
     while (1) /* Task loop */
     {
@@ -121,6 +128,9 @@ void vTEMP_task(void *pv_param_task)
                              (TEMP_SENSOR_RC_COEF + 1);
 
         /* TODO Send value to main */
+        temperature_payload->temperature = filtered_value;
+        xQueueSend(task_param->queue_temperature_sts, &msg_temp_to_hmi, 0); /* Don't wait on queue*/
+
 
         /* Compute elapsed time since last Heartbeat message */
         elapsed_time_ms = (xTaskGetTickCount() - hb_sending_tick) * portTICK_RATE_MS;

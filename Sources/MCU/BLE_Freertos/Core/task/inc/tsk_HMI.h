@@ -56,9 +56,17 @@
 /******************** INCLUDES ***********************************************/
 #include <FreeRTOS.h>
 #include <queue.h>
+#include <stdint.h>
 
 /******************** CONSTANTS OF MODULE ************************************/
 #define HMI_HB_SEND_TIME_MS     200  /* Indicate when the task shall send a heartbeat */
+#define HMI_TASK_LOOP_TIME_MS   20  
+
+typedef enum
+{
+    HMI_MSG_FDBK_ID_TEMP = 0
+}tskHMI_msg_fdbk_id_e;
+
 
 
 /******************** MACROS DEFINITION **************************************/
@@ -71,6 +79,29 @@ typedef struct
  xQueueHandle queue_hmi_setpoint;
  xQueueHandle queue_hb_to_watchdog;
 }tskHMI_TaskParam_t;
+
+
+typedef struct  __attribute__((packed))
+{
+    tskHMI_msg_fdbk_id_e fdbk_id;
+}tskHMI_msg_fdbk_header_t;
+
+typedef struct __attribute__((packed))
+{
+    float temperature;
+}tskHMI_msg_fdbk_pld_temperature_t;
+
+typedef union __attribute__((packed))
+{
+    uint8_t                             rawData[1];
+    tskHMI_msg_fdbk_pld_temperature_t   temp_pld;
+}tskHMI_msg_fdbk_payload_t;
+
+typedef struct  __attribute__((packed))
+{
+    tskHMI_msg_fdbk_header_t header;
+    tskHMI_msg_fdbk_payload_t payload;
+}tskHMI_msg_fdbk_msg_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 

@@ -277,6 +277,22 @@ static void vSetupOsExchangeObject(void)
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HB_TO_WDG);
 
+    /* Create Queue for message to main transmission */
+    tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_TO_HMI, sizeof(tskHMI_msg_fdbk_msg_t));
+    /* Check for an error */
+    if (tmpQueueHandle == 0)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+    /* Store the value to tasks parameters */
+    param_HMI.queue_hmi_feedback = tmpQueueHandle;
+    /* TODO root message from temperature directly to main which shall duplicate if needed to hmi */
+    param_TEMP.queue_temperature_sts = tmpQueueHandle;
+    /* Add queue to registry */
+    vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_TO_HMI);
+
+
     /* TODO create more semaphore here*/
 }
 

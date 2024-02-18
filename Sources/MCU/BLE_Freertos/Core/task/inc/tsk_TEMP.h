@@ -60,7 +60,7 @@
 /******************** CONSTANTS OF MODULE ************************************/
 #define TEMP_HB_SEND_TIME_MS    200 /* Indicate when the task shall send a heartbeat */
 
-#define TEMP_SENSOR_ACQ_MS      50  /* Sampling period of temperature sensor in ms */
+#define TEMP_SENSOR_ACQ_MS      100  /* Sampling period of temperature sensor in ms */
 
 #define TEMP_SENSOR_RC_COEF     5   /* Coefficient for an RC filter of temperature value */
 
@@ -73,6 +73,12 @@ typedef struct
  xQueueHandle queue_temperature_sts;
  xQueueHandle queue_hb_to_watchdog;
 }tskTEMP_TaskParam_t;
+
+typedef struct
+{
+    float temperature;
+}tskTEMP_queue_msg_t;
+
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 

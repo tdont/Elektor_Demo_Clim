@@ -102,6 +102,15 @@ void HMI_init_display(void);
 void HMI_init_widget(void);
 void HMI_set_screen_label(const char* const text);
 
+void HMI_handle_incomming_messages(tskHMI_TaskParam_t* task_param, 
+                                        xQueueSetHandle queue_set_hdl, 
+                                        uint16_t timeout_ms);
+
+void HMI_handle_incomming_messages_feedback(tskHMI_TaskParam_t* task_param);
+
+void HMI_handle_incomming_messages_fdbk_temperature(tskHMI_TaskParam_t* task_param, 
+                                        const tskHMI_msg_fdbk_pld_temperature_t* const temp_pld);
+
 void HMI_init_button(void);
 void BSP_PB_Callback(Button_TypeDef Button);
 
@@ -111,7 +120,10 @@ void vHMI_task(void* pv_param_task)
     tskHMI_TaskParam_t* task_param;
     uint16_t elapsed_time_ms = 0;
     tskCommon_Hb_t heartbeat = {0};
-    portTickType hb_sending_tick = 0;
+    portTickType hb_sending_tick = 0;    
+    portBASE_TYPE ret = pdFAIL;
+    xQueueSetHandle queue_set_hdl = 0;
+    uint8_t current_screen_index = 0;
 
     heartbeat.tsk_id = TSK_CNFG_MONITORED_ID_HMI;
     heartbeat.hb_counter = 0;
@@ -134,24 +146,54 @@ void vHMI_task(void* pv_param_task)
     /* Init widget */
     HMI_init_widget();
 
+    /* Create queue set to listen from multiple queue */
+    queue_set_hdl = xQueueCreateSet(TSK_CNFG_QUEUE_SET_HMI_SIZE);
+    /* Check for an error */
+    if (queue_set_hdl == 0)
+    {
+        /* Enter error loop */
+        vTskCommon_ErrorLoop();
+    }
+    /* Add queue to queue set */
+    ret = xQueueAddToSet(task_param->queue_hmi_feedback, queue_set_hdl);
+    if (ret != pdPASS)
+    {
+        /* Enter error loop */
+        vTskCommon_ErrorLoop();
+    }
+    /* TODO add here new queue (ex TOF sensor) */
+
     while (1) /* Task loop */
     {
-        /* TODO handle incomming messages */
+        /* Compute remaining time before feeding the watchdog */
+        elapsed_time_ms = (xTaskGetTickCount() - hb_sending_tick) * portTICK_RATE_MS;
+
+        /* If there is enought time before feeding watchdog */
+        if (elapsed_time_ms <= HMI_HB_SEND_TIME_MS)
+        {
+            /* Read incoming messages */
+            if ((HMI_HB_SEND_TIME_MS - elapsed_time_ms) > HMI_TASK_LOOP_TIME_MS)
+            {
+                /* Delay before feeding the watchdog is greater than the desired task loop duration */
+                HMI_handle_incomming_messages(task_param, queue_set_hdl, HMI_TASK_LOOP_TIME_MS);
+            }
+            else
+            {
+                /* Delay before feeding the watchdog is lower than the desired task loop duration, only wait message for the remaining amount of time */
+                HMI_handle_incomming_messages(task_param, queue_set_hdl,
+                                                (HMI_TASK_LOOP_TIME_MS - elapsed_time_ms));
+            }
+        }
 
         /* TODO handle transition between screen */
         
-        /* TODO handle screen refresh */
-
-    	vTaskDelay(50/portTICK_RATE_MS);
+            /* handle screen refresh of new screen */
+            //hmi_screens[current_screen_index].update(hmi_screens[current_screen_index].data);
 
         /* Refresh status bar */
         vHMISB_update(&status_bar_data);
-        /* TODO check whether it is only current screen */
-        /* Refresh all screen */
-        for (uint8_t i = 0; i < sizeof(hmi_screens)/sizeof(tsk_HMI_screen_t); i++)
-        {
-            hmi_screens[i].update(hmi_screens[i].data);
-        }
+        /* Refresh current screen */
+        hmi_screens[current_screen_index].update(hmi_screens[current_screen_index].data);
 
         YACSWL_widget_draw(&hmi_root_widget, &hmi_lcd_frame);
         BSP_LCD_Refresh(0);
@@ -274,6 +316,66 @@ void HMI_set_screen_label(const char* const text)
 
     return;
 }
+
+void HMI_handle_incomming_messages(tskHMI_TaskParam_t* task_param, 
+                                        xQueueSetHandle queue_set_hdl, 
+                                        uint16_t timeout_ms)
+{
+    xQueueSetMemberHandle queue_hdl_data_available;
+    /* Check parameters */
+    if (task_param == NULL)
+    {
+        /* Error null pointer */
+        return;
+    }
+    if (queue_set_hdl == NULL)
+    {
+        /* Error null pointer */
+        return;
+    }
+
+    /* Look for available message on Queues */
+    queue_hdl_data_available = xQueueSelectFromSet(queue_set_hdl, timeout_ms / portTICK_RATE_MS);
+
+    /* Message From Autopilot */
+    if(queue_hdl_data_available == task_param->queue_hmi_feedback)
+    {
+        /* Handle message from Autopilot */
+        HMI_handle_incomming_messages_feedback(task_param);
+    }
+}
+
+void HMI_handle_incomming_messages_feedback(tskHMI_TaskParam_t* task_param)
+{
+    static tskHMI_msg_fdbk_msg_t feedback_msg = {0};
+    portBASE_TYPE ret = 0;
+
+    /* Retrieve message from queue */
+    ret = xQueueReceive(task_param->queue_hmi_feedback, (void*) &feedback_msg, 0);
+
+    if(ret == pdPASS)
+    {
+        /* Switch message according to id */
+        switch(feedback_msg.header.fdbk_id)
+        {
+            case HMI_MSG_FDBK_ID_TEMP:
+                HMI_handle_incomming_messages_fdbk_temperature(task_param,
+                                                &(feedback_msg.payload.temp_pld));
+                break;
+            default:
+                /* Drop message */
+                break;
+        }
+    }
+}
+
+void HMI_handle_incomming_messages_fdbk_temperature(tskHMI_TaskParam_t* task_param, 
+                                            const tskHMI_msg_fdbk_pld_temperature_t* const temp_pld)
+{
+    /* Update data */
+    screen_main_data.ambient_temperature = temp_pld->temperature;
+}
+
 
 void HMI_init_button(void)
 {

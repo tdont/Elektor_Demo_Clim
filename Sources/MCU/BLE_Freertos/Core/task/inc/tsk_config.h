@@ -79,8 +79,14 @@
 
 /* Definition of Queue name for debug */
 #define TSK_CNFG_QUEUE_NAME_HB_TO_WDG           "QueHbToWdg"
+#define TSK_CNFG_QUEUE_NAME_TO_HMI              "QueToHMI"
+
 
 #define TSK_CNFG_QUEUE_LENGTH_HB_TO_WDG         (TSK_CNFG_MONITORED_ID_CNT * 3)
+#define TSK_CNFG_QUEUE_LENGTH_TO_HMI            (3)
+
+#define TSK_CNFG_QUEUE_SET_HMI_SIZE            ( TSK_CNFG_QUEUE_LENGTH_TO_HMI \
+                                                + 1)
 
 /******************** MACROS DEFINITION **************************************/
 

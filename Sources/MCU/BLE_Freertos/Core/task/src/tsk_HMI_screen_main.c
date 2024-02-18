@@ -58,10 +58,9 @@
 #include <YACSGL.h>
 #include <YACSWL.h>
 #include <YACSGL_font_8x16.h>
-//#include <YACSGL_font_5x7.h>
-
 
 /******************** CONSTANTS OF MODULE ************************************/
+#define HMI_SM_BUFF_CONV_TEMP   (20u)
 
 /******************** MACROS DEFINITION **************************************/
 
@@ -77,6 +76,7 @@ static YACSWL_widget_t HMI_SM_root_widget = {0};
 static YACSWL_label_t  HMI_SM_lbl_ambient_temperature = {0};
 
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
+static void vHMISM_display_temp_value(YACSWL_label_t* const lbl_temp_ambiant, float temperature);
 
 /******************** API FUNCTIONS ******************************************/
 void vHMISM_init(const void* const screen_main_data, YACSWL_widget_t* const root_widget)
@@ -159,12 +159,23 @@ void vHMISM_update(const void* const screen_main_data)
     {
         return;
     }
+    const tskHMI_screen_main_t* const data = (const tskHMI_screen_main_t* const) screen_main_data;
 
+    /* Update temperature */
+    vHMISM_display_temp_value(&HMI_SM_lbl_ambient_temperature, data->ambient_temperature);
 
     return;
 }
 
 /******************** LOCAL FUNCTIONS ****************************************/
+static void vHMISM_display_temp_value(YACSWL_label_t* const lbl_temp, float temperature)
+{
+    static char temp_conf[HMI_SM_BUFF_CONV_TEMP] = {};
+
+    snprintf(temp_conf, HMI_SM_BUFF_CONV_TEMP, "%2.1f oC", temperature);
+
+    YACSWL_label_set_text(lbl_temp, temp_conf);
+}
 
 /**\} */
 /**\} */
