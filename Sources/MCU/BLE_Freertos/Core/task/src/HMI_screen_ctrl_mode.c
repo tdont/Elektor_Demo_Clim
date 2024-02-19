@@ -58,6 +58,8 @@
 #include <YACSWL.h>
 #include <YACSGL_font_8x16.h>
 
+#include "HMI_screen.h"
+
 /******************** CONSTANTS OF MODULE ************************************/
 typedef struct 
 {
@@ -68,6 +70,13 @@ typedef struct
 /******************** TYPE DEFINITION ****************************************/
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
+tsk_HMI_screen_metadata_t hmi_ctrl_mode_metadata =  {   "Control mode",
+                                                        vHMICM_init,
+                                                        vHMICM_enter_screen,
+                                                        vHMICM_leave_screen,
+                                                        vHMICM_update
+                                                    };
+
 static HMICM_status_t  HMI_CM_status = {0};
 static YACSWL_widget_t HMI_CM_root_widget = {0};
 static YACSWL_label_t  HMI_CM_lbl_ctrl_mode = {0};

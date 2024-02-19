@@ -102,18 +102,14 @@ static tsk_hmi_status_t     tsk_status = {0};
 
 /* Register screens here */
 static tsk_HMI_screen_t hmi_screens[] = {   /* First screen in array is the main screen */
-                                            {"Ambient temperature",
-                                            (void*)&screen_main_data,
-                                            vHMISM_init,
-                                            vHMISM_enter_screen,
-                                            vHMISM_leave_screen,
-                                            vHMISM_update},
-                                            {"Control mode",
-                                            (void*)&screen_ctrl_mode_data,
-                                            vHMICM_init,
-                                            vHMICM_enter_screen,
-                                            vHMICM_leave_screen,
-                                            vHMICM_update}
+                                            {
+                                                (void*)&screen_main_data,
+                                                &hmi_main_metadata
+                                            }
+                                            ,{
+                                                (void*)&screen_ctrl_mode_data,
+                                                &hmi_ctrl_mode_metadata
+                                            }
                                         };
 
 #define HMI_NB_SCREEN   (sizeof(hmi_screens)/sizeof(tsk_HMI_screen_t))
@@ -226,7 +222,7 @@ void vHMI_task(void* pv_param_task)
         /* Refresh status bar */
         vHMISB_update(&status_bar_data);
         /* Refresh current screen */
-        hmi_screens[tsk_status.cur_screen_idx].update(hmi_screens[tsk_status.cur_screen_idx].data);
+        hmi_screens[tsk_status.cur_screen_idx].metadata->update(hmi_screens[tsk_status.cur_screen_idx].data);
 
         YACSWL_widget_draw(&hmi_root_widget, &hmi_lcd_frame);
         BSP_LCD_Refresh(0);
@@ -316,17 +312,17 @@ void HMI_init_widget(void)
     /* Init each screens */
     for (uint8_t i = 0; i < HMI_NB_SCREEN; i++)
     {
-        hmi_screens[i].init(hmi_screens[i].data, &hmi_screen_area_widget);
+        hmi_screens[i].metadata->init(hmi_screens[i].data, &hmi_screen_area_widget);
         if (i != 0)
         {
             /* For all but first screen, indicate to leave the screen */
-            hmi_screens[i].leave_screen();
+            hmi_screens[i].metadata->leave_screen();
         }
         else
         {
             /* For first screen indicate to enter the screen */
-            hmi_screens[i].enter_screen();
-            HMI_set_screen_label(hmi_screens[i].title);
+            hmi_screens[i].metadata->enter_screen();
+            HMI_set_screen_label(hmi_screens[i].metadata->title);
         }
     }
 
@@ -441,24 +437,24 @@ void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param)
 
 void HMI_go_to_main_screen(void)
 {
-    hmi_screens[tsk_status.cur_screen_idx].leave_screen();
+    hmi_screens[tsk_status.cur_screen_idx].metadata->leave_screen();
     tsk_status.cur_screen_idx = 0;
-    hmi_screens[tsk_status.cur_screen_idx].enter_screen();
+    hmi_screens[tsk_status.cur_screen_idx].metadata->enter_screen();
     /* Update title */
-    HMI_set_screen_label(hmi_screens[tsk_status.cur_screen_idx].title);
+    HMI_set_screen_label(hmi_screens[tsk_status.cur_screen_idx].metadata->title);
 }
 
 void HMI_go_to_next_screen(void)
 {
-    hmi_screens[tsk_status.cur_screen_idx].leave_screen();
+    hmi_screens[tsk_status.cur_screen_idx].metadata->leave_screen();
     tsk_status.cur_screen_idx++;
     if(tsk_status.cur_screen_idx >= HMI_NB_SCREEN)
     {
         tsk_status.cur_screen_idx = 0;
     }
-    hmi_screens[tsk_status.cur_screen_idx].enter_screen();
+    hmi_screens[tsk_status.cur_screen_idx].metadata->enter_screen();
     /* Update title */
-    HMI_set_screen_label(hmi_screens[tsk_status.cur_screen_idx].title);
+    HMI_set_screen_label(hmi_screens[tsk_status.cur_screen_idx].metadata->title);
 
     /* Store time to remember when last change occured */
     tsk_status.screen_change_tick = xTaskGetTickCount();

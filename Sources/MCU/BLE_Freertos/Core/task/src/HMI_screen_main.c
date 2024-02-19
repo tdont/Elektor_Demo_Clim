@@ -49,14 +49,17 @@
  */
 
 /******************** INCLUDES ***********************************************/
-#include <HMI_screen_main.h>
+#include "HMI_screen_main.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <YACSGL.h>
 #include <YACSWL.h>
 #include <YACSGL_font_8x16.h>
+
+#include "HMI_screen.h"
 
 /******************** CONSTANTS OF MODULE ************************************/
 #define HMI_SM_BUFF_CONV_TEMP   (20u)
@@ -70,6 +73,13 @@ typedef struct
 }HMISM_status_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
+tsk_HMI_screen_metadata_t hmi_main_metadata = {   "Ambient temperature",
+                                                vHMISM_init,
+                                                vHMISM_enter_screen,
+                                                vHMISM_leave_screen,
+                                                vHMISM_update
+                                            };
+
 static HMISM_status_t  HMI_CM_status = {0};
 static YACSWL_widget_t HMI_CM_root_widget = {0};
 static YACSWL_label_t  HMI_CM_lbl_ctrl_mode = {0};
@@ -110,10 +120,10 @@ void vHMISM_init(const void* const screen_main_data, YACSWL_widget_t* const root
     /* Init ambient temperature label */
     YACSWL_label_init(&HMI_CM_lbl_ctrl_mode);
     YACSWL_label_set_font(&HMI_CM_lbl_ctrl_mode, &YACSGL_font_8x16);
-    YACSWL_label_set_text(&HMI_CM_lbl_ctrl_mode, "29.0 oC");
+    YACSWL_label_set_text(&HMI_CM_lbl_ctrl_mode, "--.- oC");
     YACSWL_widget_set_border_width(&(HMI_CM_lbl_ctrl_mode.widget), 0u);
     YACSWL_widget_add_child(&HMI_CM_root_widget, &HMI_CM_lbl_ctrl_mode.widget);    
-    YACSWL_widget_center_in_parent(&HMI_CM_lbl_ctrl_mode);
+    YACSWL_widget_center_in_parent(&HMI_CM_lbl_ctrl_mode.widget);
 
     /* Indicate init is complete */
     HMI_CM_status.init_complete = true;

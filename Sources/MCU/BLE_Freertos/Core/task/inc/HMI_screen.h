@@ -66,11 +66,17 @@
 typedef struct 
 {
     char* title;
-    const void* const data;
     void  (*init)(const void* const data, YACSWL_widget_t* const root_widget);
     void  (*enter_screen)(void);
     void  (*leave_screen)(void);
     void  (*update)(const void* const data);
+}tsk_HMI_screen_metadata_t;
+
+
+typedef struct 
+{
+    void* const                 data;
+    tsk_HMI_screen_metadata_t*   metadata;
 }tsk_HMI_screen_t;
 
 

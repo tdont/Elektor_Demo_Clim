@@ -57,6 +57,7 @@
 #include <YACSWL.h>
 
 #include "tsk_common.h"
+#include "HMI_screen.h"
 
 /******************** CONSTANTS OF MODULE ************************************/
 
@@ -71,7 +72,7 @@ typedef struct
 }HMI_screen_ctrl_mode_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
-
+extern tsk_HMI_screen_metadata_t hmi_ctrl_mode_metadata;
 
 /******************** API FUNCTION PROTOTYPE *********************************/
 void vHMICM_init(const void* const screen_cm_data, YACSWL_widget_t* const root_widget);
