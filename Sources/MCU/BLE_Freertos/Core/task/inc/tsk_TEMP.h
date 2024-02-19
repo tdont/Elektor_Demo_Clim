@@ -64,6 +64,8 @@
 
 #define TEMP_SENSOR_RC_COEF     5   /* Coefficient for an RC filter of temperature value */
 
+#define TEMP_SENSOR_TEMP_OFFSET 2.5 /* Offset measured between room temp and measured temperature */
+
 /******************** MACROS DEFINITION **************************************/
 
 

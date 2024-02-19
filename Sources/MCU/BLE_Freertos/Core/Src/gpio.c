@@ -37,7 +37,7 @@
      PA0   ------> ADCx_IN5
      PC3   ------> ADCx_IN4
      PC1   ------> ADCx_IN2
-     PB9   ------> QUADSPI_BK1_IO0
+     PB9   ------> IR_OUT
      PC0   ------> LPUART1_RX
      PB8   ------> I2C1_SCL
      PB5   ------> LPUART1_TX
@@ -64,7 +64,6 @@
      PC7   ------> TSC_G4_IO2
      PD15   ------> S_TIM1_CH2
      PD10   ------> TSC_G6_IO1
-     PE0   ------> S_TIM16_CH1
      PD5   ------> QUADSPI_BK1_IO1
      PD6   ------> QUADSPI_BK1_IO2
      PD11   ------> TSC_G6_IO2
@@ -112,13 +111,13 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = QSPI_BK_IO0_Pin;
+  /*Configure GPIO pin : PB9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF10_QUADSPI;
-  HAL_GPIO_Init(QSPI_BK_IO0_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Alternate = GPIO_AF8_IR;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = LPUART1_RX_MCU_Pin;
@@ -305,14 +304,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIO_SELECT1_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PE0 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF14_TIM16;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
 }
 

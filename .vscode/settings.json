@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "yacsgl_font_8x16.h": "c",
+        "tsk_hmi.h": "c",
+        "tsk_config.h": "c",
+        "stm32wb5mm_dk_bus.h": "c",
+        "freertosconfig.h": "c"
+    }
+}

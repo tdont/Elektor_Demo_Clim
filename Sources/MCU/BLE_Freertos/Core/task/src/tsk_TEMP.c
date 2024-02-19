@@ -128,7 +128,7 @@ void vTEMP_task(void *pv_param_task)
                              (TEMP_SENSOR_RC_COEF + 1);
 
         /* TODO Send value to main */
-        temperature_payload->temperature = filtered_value;
+        temperature_payload->temperature = filtered_value - TEMP_SENSOR_TEMP_OFFSET;
         xQueueSend(task_param->queue_temperature_sts, &msg_temp_to_hmi, 0); /* Don't wait on queue*/
 
 
