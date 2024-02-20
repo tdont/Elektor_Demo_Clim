@@ -87,6 +87,8 @@ static YACSWL_widget_t          HMI_CM_root_widget = {0};
 static YACSWL_label_t           HMI_CM_lbl_ctrl_mode = {0};
 static YACSWL_progress_bar_t    HMI_CM_progress_bar = {0};
 
+static HMI_screen_ctrl_mode_setpoint_t  HMI_CM_setpoint = {0};
+
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
 static void vHMICM_refresh_widget(void);
 
@@ -191,6 +193,9 @@ void vHMICM_validate_edit(void)
         return;
     }
 
+    /* Send new setpoint to main */
+    /* TODO remove this dummy code */
+
     HMI_CM_status.edit_in_progress = false;
 }
 
@@ -225,17 +230,39 @@ void vHMICM_update(const void* const screen_cm_data, tskHMI_range_t* range)
 
     /* Update progress bar value */
     uint16_t divider = (range->val_max - range->val_min);
+    uint8_t progress = 0;
     /* Ensure divider is not 0 */
     if (divider != 0)
     {
-        HMI_CM_progress_bar.progress = (100 * (range->val - range->val_min)) / divider;
+        progress = (100 * (range->val - range->val_min)) / divider;
+        HMI_CM_progress_bar.progress = progress;
     }
     else
     {
         HMI_CM_progress_bar.progress = 0;
     }
 
-    switch(data->ctrl_mode)
+    tskCommon_ble_mode_e mode_to_display = 0;
+
+    if(HMI_CM_status.edit_in_progress == false)
+    {
+        mode_to_display = data->ctrl_mode;
+    }
+    else
+    {
+        if(progress > 50)
+        {
+            mode_to_display = TC_BLE_MODE_MANUAL;
+        }
+        else
+        {
+            mode_to_display = TC_BLE_MODE_BLE;
+        }
+
+        HMI_CM_setpoint.new_ctrl_mode = mode_to_display;
+    }
+
+    switch(mode_to_display)
     {
         case TC_BLE_MODE_BLE:
             YACSWL_label_set_text(&HMI_CM_lbl_ctrl_mode, "BLE mode");
@@ -247,6 +274,7 @@ void vHMICM_update(const void* const screen_cm_data, tskHMI_range_t* range)
             YACSWL_label_set_text(&HMI_CM_lbl_ctrl_mode, "Unknown mode");
             break;
     }
+
 
     YACSWL_widget_center_in_parent(&HMI_CM_lbl_ctrl_mode.widget);
     vHMICM_refresh_widget();

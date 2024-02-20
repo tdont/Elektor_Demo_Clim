@@ -57,13 +57,15 @@
 #define TSK_CNFG_MONITORED_ID_HMI                  (0u)
 #define TSK_CNFG_MONITORED_ID_TEMP                 (1u)
 #define TSK_CNFG_MONITORED_ID_TOF                  (2u)
+#define TSK_CNFG_MONITORED_ID_MAIN                 (3u)
 /* Must be at the end of the task id list (indicates the number of task monitored) */
-#define TSK_CNFG_MONITORED_ID_CNT                   (TSK_CNFG_MONITORED_ID_TOF + 1)
+#define TSK_CNFG_MONITORED_ID_CNT                   (TSK_CNFG_MONITORED_ID_MAIN + 1)
 
 /* Definition of tasks priority */
 #define TSK_CNFG_PRIORITY_HMI                   	(configMAX_PRIORITIES - 3)
 #define TSK_CNFG_PRIORITY_TEMP                      (configMAX_PRIORITIES - 4)
 #define TSK_CNFG_PRIORITY_TOF                       (configMAX_PRIORITIES - 4)
+#define TSK_CNFG_PRIORITY_MAIN                      (configMAX_PRIORITIES - 2)
 #define TSK_CNFG_PRIORITY_WDGT                      (2u)     /* Lowest priority task of monitored task */
 #define TSK_CNFG_PRIORITY_NON_MONITORED             (1u)     /* Non monitored task (if any) Just above idle task */
 
@@ -72,6 +74,7 @@
 #define TSK_CNFG_STACKSIZE_HMI                      (368u)
 #define TSK_CNFG_STACKSIZE_TEMP                     (256u)
 #define TSK_CNFG_STACKSIZE_TOF                      (256u)
+#define TSK_CNFG_STACKSIZE_MAIN                     (256u)
 
 /* Definition of MSGOBJ (1 is reserved for CMCH Task) */
 
@@ -80,17 +83,20 @@
 #define TSK_CNFG_NAME_HMI               		"TaskHMI"
 #define TSK_CNFG_NAME_TEMP                      "TaskTEMP"
 #define TSK_CNFG_NAME_TOF                       "TaskTOF"
+#define TSK_CNFG_NAME_MAIN                      "TaskMAIN"
 
 /* Definition of Queue name for debug */
 #define TSK_CNFG_QUEUE_NAME_HB_TO_WDG           "QueHbToWdg"
-#define TSK_CNFG_QUEUE_NAME_TO_HMI              "QueToHMI"
+#define TSK_CNFG_QUEUE_NAME_TO_HMI              "QueMainToHMI"
 #define TSK_CNFG_QUEUE_NAME_BTN_TO_HMI          "QueBtnToHMI"
 #define TSK_CNFG_QUEUE_NAME_TOF_TO_HMI          "QueTofToHMI"
+#define TSK_CNFG_QUEUE_NAME_HMI_SETPOINT        "QueHMIStpt"
 
 #define TSK_CNFG_QUEUE_LENGTH_HB_TO_WDG         (TSK_CNFG_MONITORED_ID_CNT * 3)
 #define TSK_CNFG_QUEUE_LENGTH_TO_HMI            (3u)
 #define TSK_CNFG_QUEUE_LENGTH_BTN_TO_HMI        (2u)
 #define TSK_CNFG_QUEUE_LENGTH_TOF_TO_HMI        (1u)
+#define TSK_CNFG_QUEUE_LENGTH_HMI_SETPOINT      (2u)
 
 #define TSK_CNFG_SEMA_NAME_START_TEMP_SNSR      "semaTempSnsr"
 #define TSK_CNFG_SEMA_NAME_INIT_TOF_SNSR        "semaTofSnsr"

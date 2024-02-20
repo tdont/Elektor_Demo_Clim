@@ -66,8 +66,10 @@
 /******************** TYPE DEFINITION ****************************************/
 typedef struct
 {
- xQueueHandle queue_hb_to_watchdog;
-}tskMAIN_TaskParam_t;
+    xQueueHandle queue_hb_to_watchdog;
+    xQueueHandle queue_hmi_setpoint;
+    xQueueHandle queue_hmi_feedback;
+ }tskMAIN_TaskParam_t;
 
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/

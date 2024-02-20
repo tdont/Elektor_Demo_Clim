@@ -50,6 +50,7 @@
 
 /******************** INCLUDES ***********************************************/
 #include <stdint.h>
+#include <stdbool.h>
 #include <FreeRTOSConfig.h>
 
 /******************** CONSTANTS OF MODULE ************************************/
@@ -76,6 +77,52 @@ typedef enum
     TC_BLE_MODE_BLE = 0,
     TC_BLE_MODE_MANUAL
 }tskCommon_ble_mode_e;
+
+typedef enum
+{
+    TC_HMI_STPT_TYPE_CTRL_MODE = 0,
+    TC_HMI_STPT_TYPE_CLIM_MODE,
+    TC_HMI_STPT_TYPE_TEMPERATEURE,
+    TC_HMI_STPT_TYPE_BLE_PAIRING
+}tskCommon_hmi_stpt_msg_type_e;
+
+typedef struct __attribute__((packed))
+{
+    tskCommon_hmi_stpt_msg_type_e msg_type;
+}tskCommon_hmi_stpt_msg_header_t;
+
+typedef struct __attribute__((packed))
+{
+    tskCommon_ble_mode_e val;
+}tskCommon_hmi_stpt_payload_cftrl_mode_t;
+
+typedef struct __attribute__((packed))
+{
+    tskCommon_clim_mode_e val;
+}tskCommon_hmi_stpt_payload_clim_mode_t;
+
+typedef struct __attribute__((packed))
+{
+    float val;
+}tskCommon_hmi_stpt_payload_temperature_t;
+
+typedef struct __attribute__((packed))
+{
+    bool val;
+}tskCommon_hmi_stpt_payload_pairing_t;
+typedef union __attribute__((packed))
+{
+    tskCommon_hmi_stpt_payload_cftrl_mode_t     ctlr_mode;
+    tskCommon_hmi_stpt_payload_clim_mode_t      clim;
+    tskCommon_hmi_stpt_payload_temperature_t    temperature;
+    tskCommon_hmi_stpt_payload_pairing_t        pairing;
+}tskCommon_hmi_stpt_msg_payload_t;
+
+typedef struct __attribute__((packed))
+{
+    tskCommon_hmi_stpt_msg_header_t     header;
+    tskCommon_hmi_stpt_msg_payload_t    payload;
+}tskCommon_hmi_stpt_msg_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 

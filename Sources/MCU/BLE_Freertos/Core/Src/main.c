@@ -81,6 +81,7 @@ static tskWDGT_TaskParam_t          param_WDGT = {0};
 static tskHMI_TaskParam_t           param_HMI = {0};
 static tskTEMP_TaskParam_t          param_TEMP = {0};
 static tskTOF_TaskParam_t           param_TOF = {0};
+static tskMAIN_TaskParam_t          param_MAIN = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -282,6 +283,7 @@ static void vSetupOsExchangeObject(void)
     param_HMI.queue_hb_to_watchdog = tmpQueueHandle;
     param_TEMP.queue_hb_to_watchdog = tmpQueueHandle;
     param_TOF.queue_hb_to_watchdog = tmpQueueHandle;
+    param_MAIN.queue_hb_to_watchdog = tmpQueueHandle;
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HB_TO_WDG);
 
@@ -295,10 +297,11 @@ static void vSetupOsExchangeObject(void)
     }
     /* Store the value to tasks parameters */
     param_HMI.queue_hmi_feedback = tmpQueueHandle;
+    param_MAIN.queue_hmi_feedback = tmpQueueHandle;
     /* TODO root message from temperature directly to main which shall duplicate if needed to hmi */
     param_TEMP.queue_temperature_sts = tmpQueueHandle;
     /* Add queue to registry */
-    vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_TO_HMI);
+    vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HMI_SETPOINT);
 
     /* Create Queue for btn to hmi transmission */
     tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_BTN_TO_HMI, sizeof(Button_TypeDef));
@@ -313,7 +316,7 @@ static void vSetupOsExchangeObject(void)
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_BTN_TO_HMI);
 
-     /* Create Queue for tof to hmi transmission */
+    /* Create Queue for tof to hmi transmission */
     tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_TOF_TO_HMI, sizeof(tskTOF_queue_msg_t));
     /* Check for an error */
     if (tmpQueueHandle == 0)
@@ -326,6 +329,20 @@ static void vSetupOsExchangeObject(void)
     param_TOF.queue_tof_distance = tmpQueueHandle;
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_TOF_TO_HMI);
+
+    /* Create Queue for hmi to main transmission */
+    tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_HMI_SETPOINT, sizeof(tskTOF_queue_msg_t));
+    /* Check for an error */
+    if (tmpQueueHandle == 0)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+    /* Store the value to tasks parameters */
+    param_HMI.queue_hmi_setpoint = tmpQueueHandle;
+    param_MAIN.queue_hmi_setpoint = tmpQueueHandle;
+    /* Add queue to registry */
+    vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HMI_SETPOINT);
 
     /***********************************************************************************/
     /* Create Semaphore for delaying start of TEMP_sensor looping */
@@ -407,6 +424,18 @@ static void vStartTasks(void)
     /* TOF thread */
     ret = xTaskCreate(vTOF_task, (const char * const) TSK_CNFG_NAME_TOF,
                         TSK_CNFG_STACKSIZE_TOF, &param_TOF, TSK_CNFG_PRIORITY_TOF,
+                        (xTaskHandle *) NULL);
+
+    /* Check whether task was created */
+    if (ret != pdTRUE)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+
+    /* MAIN thread */
+    ret = xTaskCreate(vMAIN_task, (const char * const) TSK_CNFG_NAME_MAIN,
+                        TSK_CNFG_STACKSIZE_MAIN, &param_MAIN, TSK_CNFG_PRIORITY_MAIN,
                         (xTaskHandle *) NULL);
 
     /* Check whether task was created */
