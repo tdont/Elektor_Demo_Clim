@@ -322,7 +322,7 @@ static void vSetupOsExchangeObject(void)
         NVIC_SystemReset();
     }
     /* Store the value to tasks parameters */
-    param_HMI.queue_hmi_distance = tmpQueueHandle;
+    param_HMI.queue_hmi_range = tmpQueueHandle;
     param_TOF.queue_tof_distance = tmpQueueHandle;
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_TOF_TO_HMI);
@@ -406,7 +406,7 @@ static void vStartTasks(void)
 
     /* TOF thread */
     ret = xTaskCreate(vTOF_task, (const char * const) TSK_CNFG_NAME_TOF,
-                        TSK_CNFG_STACKSIZE_TOF, &param_TEMP, TSK_CNFG_PRIORITY_TOF,
+                        TSK_CNFG_STACKSIZE_TOF, &param_TOF, TSK_CNFG_PRIORITY_TOF,
                         (xTaskHandle *) NULL);
 
     /* Check whether task was created */

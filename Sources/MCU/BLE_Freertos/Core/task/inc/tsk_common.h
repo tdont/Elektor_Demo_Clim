@@ -67,7 +67,8 @@ typedef struct
 typedef enum
 {
     TC_CLIM_MODE_HEAT = 0,
-    TC_CLIM_MODE_COLD
+    TC_CLIM_MODE_COLD,
+    TC_CLIM_MODE_OFF
 }tskCommon_clim_mode_e;
 
 typedef enum

@@ -142,9 +142,13 @@ void vTOF_task(void *pv_param_task)
           {
             msg_tof.distance_mm = msg_tof.distance_max_mm;
           }
-          if(distance < msg_tof.distance_min_mm)
+          else if(distance < msg_tof.distance_min_mm)
           {
             msg_tof.distance_mm = msg_tof.distance_min_mm;
+          }
+          else
+          {
+            msg_tof.distance_mm = distance;
           }
           xQueueSend(task_param->queue_tof_distance, &msg_tof, 0); /* Don't wait on queue*/
         }

@@ -69,7 +69,12 @@
 typedef struct
 {
     tskCommon_ble_mode_e   ctrl_mode;
-}HMI_screen_ctrl_mode_t;
+}HMI_screen_ctrl_mode_sts_t;
+
+typedef struct
+{
+    tskCommon_ble_mode_e   new_ctrl_mode;
+}HMI_screen_ctrl_mode_setpoint_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 extern tsk_HMI_screen_metadata_t hmi_ctrl_mode_metadata;
@@ -83,7 +88,7 @@ void vHMICM_enter_edit(void);
 void vHMICM_validate_edit(void);
 void vHMICM_cancel_edit(void);
 
-void vHMICM_update(const void* const screen_cm_data);
+void vHMICM_update(const void* const screen_cm_data, tskHMI_range_t* range);
 
 #endif /* TASK_INC_HMI_SCREEN_CTRL_MODE_H_ */
 

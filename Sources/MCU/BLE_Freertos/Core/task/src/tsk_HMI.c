@@ -73,6 +73,7 @@
 
 #include "tsk_common.h"
 #include "tsk_config.h"
+#include "tsk_TOF.h"
 
 
 /******************** CONSTANTS OF MODULE ************************************/
@@ -85,13 +86,14 @@ typedef struct
     uint8_t         cur_screen_idx;
     portTickType    screen_change_tick;
     bool            edit_in_progress;
+    tskHMI_range_t  range;
 }tsk_hmi_status_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 static YACSGL_frame_t hmi_lcd_frame = {0};
 static tskHMI_status_bar_data_t status_bar_data = {0};
 static HMI_screen_main_t        screen_main_data = {0};
-static HMI_screen_ctrl_mode_t   screen_ctrl_mode_data = {0};
+static HMI_screen_ctrl_mode_sts_t   screen_ctrl_mode_data = {0};
 
 static YACSWL_widget_t hmi_root_widget={0};
 static YACSWL_label_t  hmi_screen_label = {0};
@@ -129,6 +131,7 @@ void HMI_handle_incomming_messages_fdbk_temperature(tskHMI_TaskParam_t* task_par
                                         const tskHMI_msg_fdbk_pld_temperature_t* const temp_pld);
 
 void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param);
+void HMI_handle_incomming_messages_range(tskHMI_TaskParam_t* task_param);
 
 void HMI_go_to_main_screen(void);
 void HMI_go_to_next_screen(void);
@@ -191,6 +194,12 @@ void vHMI_task(void* pv_param_task)
         /* Enter error loop */
         vTskCommon_ErrorLoop();
     }
+    ret = xQueueAddToSet(task_param->queue_hmi_range, queue_set_hdl);
+    if (ret != pdPASS)
+    {
+        /* Enter error loop */
+        vTskCommon_ErrorLoop();
+    }
     /* TODO add here new queue (ex TOF sensor) */
 
     /* Now ready to set queue for BTN irq */
@@ -224,7 +233,8 @@ void vHMI_task(void* pv_param_task)
         /* Refresh status bar */
         vHMISB_update(&status_bar_data);
         /* Refresh current screen */
-        hmi_screens[tsk_status.cur_screen_idx].metadata->update(hmi_screens[tsk_status.cur_screen_idx].data);
+        hmi_screens[tsk_status.cur_screen_idx].metadata->update(hmi_screens[tsk_status.cur_screen_idx].data,
+                                                                    &tsk_status.range);
 
         YACSWL_widget_draw(&hmi_root_widget, &hmi_lcd_frame);
         BSP_LCD_Refresh(0);
@@ -378,6 +388,10 @@ void HMI_handle_incomming_messages(tskHMI_TaskParam_t* task_param,
     {
         HMI_handle_incomming_messages_btn(task_param);
     }
+    else if(queue_hdl_data_available == task_param->queue_hmi_range)
+    {
+        HMI_handle_incomming_messages_range(task_param);
+    }
 }
 
 void HMI_handle_incomming_messages_feedback(tskHMI_TaskParam_t* task_param)
@@ -438,6 +452,22 @@ void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param)
     }
 }
 
+void HMI_handle_incomming_messages_range(tskHMI_TaskParam_t* task_param)
+{
+    static tskTOF_queue_msg_t msg_tof = {0};
+    portBASE_TYPE ret = 0;
+
+    /* Retrieve message from queue */
+    ret = xQueueReceive(task_param->queue_hmi_range, (void*) &msg_tof, 0);
+
+    if(ret == pdPASS)
+    {
+        tsk_status.range.val = msg_tof.distance_mm;
+        tsk_status.range.val_max = msg_tof.distance_max_mm;
+        tsk_status.range.val_min = msg_tof.distance_min_mm;
+    }
+}
+
 void HMI_go_to_main_screen(void)
 {
     HMI_cancel_edit_mode();
@@ -493,6 +523,8 @@ void HMI_enter_leaved_edit_mode(void)
         tsk_status.edit_in_progress = false;
 
         hmi_screens[tsk_status.cur_screen_idx].metadata->validate_edit();
+
+        /* TODO Send new setpoint to main */
     }
     else if (       (tsk_status.edit_in_progress == false)
                 && (hmi_screens[tsk_status.cur_screen_idx].metadata->enter_edit != NULL)

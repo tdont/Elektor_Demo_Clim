@@ -77,7 +77,7 @@ void vHMISM_init(const void* const screen_main_data, YACSWL_widget_t* const root
 void vHMISM_enter_screen(void);
 void vHMISM_leave_screen(void);
 
-void vHMISM_update(const void* const screen_main_data);
+void vHMISM_update(const void* const screen_main_data, tskHMI_range_t* range);
 
 
 /******************** API FUNCTION PROTOTYPE *********************************/

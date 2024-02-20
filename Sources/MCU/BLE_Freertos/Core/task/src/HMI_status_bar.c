@@ -77,7 +77,7 @@ static YACSWL_label_t  HMI_SB_lbl_manual_ble = {0};
 static YACSWL_label_t  HMI_SB_lbl_temp_setpoint = {0};
 static YACSWL_label_t  HMI_SB_lbl_heat_mode = {0};
 
-static const char* HMI_SB_txt_mode[]  = {"Heating", "Cooling"};
+static const char* HMI_SB_txt_mode[]  = {"Heating", "Cooling", "Offline"};
 static const char* HMI_SB_txt_ble_man[]  = {"BLE", "MAN"};
 
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/

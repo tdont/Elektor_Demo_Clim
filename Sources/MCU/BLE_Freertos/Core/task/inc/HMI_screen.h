@@ -63,13 +63,21 @@
 
 
 /******************** TYPE DEFINITION ****************************************/
+
+typedef struct 
+{
+    uint16_t val;
+    uint16_t val_max;
+    uint16_t val_min;
+}tskHMI_range_t;
+
 typedef struct 
 {
     char* title;
     void  (*init)(const void* const data, YACSWL_widget_t* const root_widget);
     void  (*enter_screen)(void);
     void  (*leave_screen)(void);
-    void  (*update)(const void* const data);
+    void  (*update)(const void* const data, tskHMI_range_t* range);
     void  (*enter_edit)(void);
     void  (*validate_edit)(void);
     void  (*cancel_edit)(void);
@@ -81,6 +89,7 @@ typedef struct
     void* const                 data;
     tsk_HMI_screen_metadata_t*   metadata;
 }tsk_HMI_screen_t;
+
 
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/

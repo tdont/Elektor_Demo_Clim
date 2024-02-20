@@ -160,7 +160,7 @@ void vHMISM_leave_screen()
     return;
 }
 
-void vHMISM_update(const void* const screen_main_data)
+void vHMISM_update(const void* const screen_main_data, tskHMI_range_t* range)
 {
     /* Ensure init was completed */
     if(HMI_CM_status.init_complete == false)
