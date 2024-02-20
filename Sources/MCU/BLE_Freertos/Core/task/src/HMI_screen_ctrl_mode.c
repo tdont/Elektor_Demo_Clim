@@ -74,7 +74,10 @@ tsk_HMI_screen_metadata_t hmi_ctrl_mode_metadata =  {   "Control mode",
                                                         vHMICM_init,
                                                         vHMICM_enter_screen,
                                                         vHMICM_leave_screen,
-                                                        vHMICM_update
+                                                        vHMICM_update,
+                                                        vHMICM_enter_edit,
+                                                        vHMICM_validate_edit,
+                                                        vHMICM_cancel_edit
                                                     };
 
 static HMICM_status_t  HMI_CM_status = {0};
@@ -153,6 +156,21 @@ void vHMICM_leave_screen()
     return;
 }
 
+void vHMICM_enter_edit(void)
+{
+    YACSWL_widget_set_border_width(&(HMI_CM_lbl_ctrl_mode.widget), 1u);
+}
+
+void vHMICM_validate_edit(void)
+{
+    YACSWL_widget_set_border_width(&(HMI_CM_lbl_ctrl_mode.widget), 0u);
+}
+
+void vHMICM_cancel_edit(void)
+{
+    YACSWL_widget_set_border_width(&(HMI_CM_lbl_ctrl_mode.widget), 0u);
+}
+
 void vHMICM_update(const void* const screen_cm_data)
 {
     /* Ensure init was completed */
@@ -172,7 +190,7 @@ void vHMICM_update(const void* const screen_cm_data)
             YACSWL_label_set_text(&HMI_CM_lbl_ctrl_mode, "BLE mode");
             break;
         case TC_BLE_MODE_MANUAL:
-            YACSWL_label_set_text(&HMI_CM_lbl_ctrl_mode, "MANUAL mode");
+            YACSWL_label_set_text(&HMI_CM_lbl_ctrl_mode, "MAN mode");
             break;
         default:
             YACSWL_label_set_text(&HMI_CM_lbl_ctrl_mode, "Unknown mode");

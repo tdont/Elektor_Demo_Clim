@@ -77,7 +77,10 @@ tsk_HMI_screen_metadata_t hmi_main_metadata = {   "Ambient temperature",
                                                 vHMISM_init,
                                                 vHMISM_enter_screen,
                                                 vHMISM_leave_screen,
-                                                vHMISM_update
+                                                vHMISM_update,
+                                                NULL,   /* No edit capabilities */
+                                                NULL,   /* No edit capabilities */
+                                                NULL    /* No edit capabilities */
                                             };
 
 static HMISM_status_t  HMI_CM_status = {0};

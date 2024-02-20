@@ -79,6 +79,9 @@ void vHMICM_init(const void* const screen_cm_data, YACSWL_widget_t* const root_w
 
 void vHMICM_enter_screen(void);
 void vHMICM_leave_screen(void);
+void vHMICM_enter_edit(void);
+void vHMICM_validate_edit(void);
+void vHMICM_cancel_edit(void);
 
 void vHMICM_update(const void* const screen_cm_data);
 

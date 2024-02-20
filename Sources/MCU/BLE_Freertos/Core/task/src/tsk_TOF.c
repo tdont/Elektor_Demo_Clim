@@ -53,7 +53,7 @@
 
 #include <stdint.h>
 #include <FreeRTOS.h>
-#include <queue.h>
+#include <semphr.h>
 #include <task.h>
 
 #include <stm32wb5mm_dk.h>
@@ -103,6 +103,10 @@ void vTOF_task(void *pv_param_task)
     heartbeat.tsk_id = TSK_CNFG_MONITORED_ID_TOF;
     heartbeat.hb_counter = 0;
 
+    static tskTOF_queue_msg_t msg_tof = {0};
+    msg_tof.distance_max_mm = TOF_SENSOR_MAX_DISTANCE_MM;
+    msg_tof.distance_min_mm = TOF_SENSOR_MIN_DISTANCE_MM;
+
     /* Check parameters */
     if (pv_param_task == NULL)
     {
@@ -112,15 +116,38 @@ void vTOF_task(void *pv_param_task)
 
     task_param = (tskTOF_TaskParam_t*) pv_param_task;
 
-    /* TODO fix dummy wait (synchronise with task that shall create a queue set )*/
-    vTaskDelay(1000 / portTICK_RATE_MS);
+    /* TODO fix dummy wait (Temperature sensor will have enabled I2C)*/
+    vTaskDelay(1500 / portTICK_RATE_MS);
+
+    VL53L0X_PROXIMITY_Init();
 
     while (1) /* Task loop */
     {
         /* Wait sufficient time prior to read another sensor value */
-    	vTaskDelay(TOF_SENSOR_ACQ_MS/portTICK_RATE_MS);
+    	  vTaskDelay(TOF_SENSOR_ACQ_MS/portTICK_RATE_MS);
 
-        /* TODO Read TOF sensor */
+        uint16_t distance = 0;
+
+        /* Take semaphore to protect access of I2C */
+        portBASE_TYPE ret = xSemaphoreTake(task_param->mutex_i2c, 1);
+        if (ret == pdPASS)
+        {
+          /* Read TOF sensor */
+          distance = VL53L0X_PROXIMITY_GetDistance();
+
+          /* Give semaphore back */
+          xSemaphoreGive(task_param->mutex_i2c);
+
+          if(distance > msg_tof.distance_max_mm)
+          {
+            msg_tof.distance_mm = msg_tof.distance_max_mm;
+          }
+          if(distance < msg_tof.distance_min_mm)
+          {
+            msg_tof.distance_mm = msg_tof.distance_min_mm;
+          }
+          xQueueSend(task_param->queue_tof_distance, &msg_tof, 0); /* Don't wait on queue*/
+        }
 
         /* Compute elapsed time since last Heartbeat message */
         elapsed_time_ms = (xTaskGetTickCount() - hb_sending_tick) * portTICK_RATE_MS;
@@ -150,7 +177,7 @@ static void VL53L0X_PROXIMITY_Init(void)
   VL53L0X_DeviceInfo_t VL53L0X_DeviceInfo;
   
   /* Initialize IO interface */
-  STM32WB5MM_DK_I2C_Init();
+  //STM32WB5MM_DK_I2C_Init();
   
   VL53L0X_PROXIMITY_MspInit();
   
@@ -203,7 +230,7 @@ static void VL53L0X_PROXIMITY_MspInit(void)
   
   HAL_GPIO_WritePin(VL53L0X_XSHUT_GPIO_PORT, VL53L0X_XSHUT_PIN, GPIO_PIN_SET);
   
-  HAL_Delay(1000);  
+  vTaskDelay(1000 / portTICK_RATE_MS);
 }
 
 /**\} */

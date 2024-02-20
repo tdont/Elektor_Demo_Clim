@@ -137,8 +137,8 @@ int main(void)
   MX_RTC_Init();
   MX_USART1_UART_Init();
   MX_MEMORYMAP_Init();
-  //MX_SPI1_Init();
-  //MX_I2C3_Init();
+//  MX_SPI1_Init();
+//  MX_I2C3_Init();
   MX_TIM16_Init();
   MX_TIM17_Init();
   MX_IRTIM_Init();
@@ -327,6 +327,31 @@ static void vSetupOsExchangeObject(void)
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_TOF_TO_HMI);
 
+    /***********************************************************************************/
+    /* Create Semaphore for delaying start of TEMP_sensor looping */
+    tmpSemaHandle = xSemaphoreCreateCounting(TSK_CNFG_SEMA_LENGTH_START_TEMP_SNSR, 0);
+    /* Check for an error */
+    if (tmpSemaHandle == 0)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+    /* Add Semaphore to registry */
+    vQueueAddToRegistry(tmpSemaHandle, TSK_CNFG_SEMA_NAME_START_TEMP_SNSR);
+
+    /***********************************************************************************/
+    /* Create Mutex to be used by all tasks using I2C (as the driver does not support concurent accesses ) */
+    tmpSemaHandle = xSemaphoreCreateMutex();
+    /* Check for an error */
+    if (tmpSemaHandle == 0)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+    param_TEMP.mutex_i2c = tmpSemaHandle;
+    param_TOF.mutex_i2c = tmpSemaHandle;
+    /* Add Semaphore to registry */
+    vQueueAddToRegistry(tmpSemaHandle, TSK_CNFG_MUTEX_NAME_I2C);
 
     /* TODO create more semaphore here*/
 }

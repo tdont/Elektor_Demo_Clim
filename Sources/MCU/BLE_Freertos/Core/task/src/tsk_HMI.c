@@ -133,6 +133,8 @@ void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param);
 void HMI_go_to_main_screen(void);
 void HMI_go_to_next_screen(void);
 void HMI_evaluate_autotransition_to_main(void);
+void HMI_enter_leaved_edit_mode(void);
+void HMI_cancel_edit_mode(void);
 
 void HMI_init_button(void);
 void BSP_PB_Callback(Button_TypeDef Button);
@@ -427,6 +429,7 @@ void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param)
                 break;
             case BUTTON_USER2:
                 /* Enter / Leave edit mode */
+                HMI_enter_leaved_edit_mode();
                 break;
             default:
                 /* Do nothing */
@@ -437,6 +440,7 @@ void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param)
 
 void HMI_go_to_main_screen(void)
 {
+    HMI_cancel_edit_mode();
     hmi_screens[tsk_status.cur_screen_idx].metadata->leave_screen();
     tsk_status.cur_screen_idx = 0;
     hmi_screens[tsk_status.cur_screen_idx].metadata->enter_screen();
@@ -446,6 +450,7 @@ void HMI_go_to_main_screen(void)
 
 void HMI_go_to_next_screen(void)
 {
+    HMI_cancel_edit_mode();
     hmi_screens[tsk_status.cur_screen_idx].metadata->leave_screen();
     tsk_status.cur_screen_idx++;
     if(tsk_status.cur_screen_idx >= HMI_NB_SCREEN)
@@ -476,6 +481,44 @@ void HMI_evaluate_autotransition_to_main(void)
     {
         tsk_status.screen_change_tick = 0;
         HMI_go_to_main_screen();
+    }
+}
+
+void HMI_enter_leaved_edit_mode(void)
+{
+    if(     (tsk_status.edit_in_progress == true)
+         && (hmi_screens[tsk_status.cur_screen_idx].metadata->validate_edit != NULL)
+      )
+    {
+        tsk_status.edit_in_progress = false;
+
+        hmi_screens[tsk_status.cur_screen_idx].metadata->validate_edit();
+    }
+    else if (       (tsk_status.edit_in_progress == false)
+                && (hmi_screens[tsk_status.cur_screen_idx].metadata->enter_edit != NULL)
+            )
+    {
+        tsk_status.edit_in_progress = true;
+
+        hmi_screens[tsk_status.cur_screen_idx].metadata->enter_edit();
+    }
+
+    /* In all case store changing time */
+    tsk_status.screen_change_tick = xTaskGetTickCount();
+}
+
+void HMI_cancel_edit_mode(void)
+{
+    if(tsk_status.edit_in_progress == false)
+    {
+        return;
+    }
+
+    tsk_status.edit_in_progress = false;
+
+    if(hmi_screens[tsk_status.cur_screen_idx].metadata->cancel_edit != NULL)
+    {
+        hmi_screens[tsk_status.cur_screen_idx].metadata->cancel_edit();
     }
 }
 

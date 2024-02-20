@@ -55,13 +55,16 @@
 
 /******************** INCLUDES ***********************************************/
 #include <FreeRTOS.h>
+#include <semphr.h>
 #include <queue.h>
 #include <stdint.h>
 
 /******************** CONSTANTS OF MODULE ************************************/
 #define TOF_HB_SEND_TIME_MS     200  /* Indicate when the task shall send a heartbeat */
-#define TOF_SENSOR_ACQ_MS       100  /* Sampling period of the TOF sensor */
+#define TOF_SENSOR_ACQ_MS       200  /* Sampling period of the TOF sensor */
 
+#define TOF_SENSOR_MAX_DISTANCE_MM  400 /* Consider distance max of TOF */
+#define TOF_SENSOR_MIN_DISTANCE_MM  10  /* Consider distance min of TOF */
 
 /******************** MACROS DEFINITION **************************************/
 
@@ -69,13 +72,16 @@
 /******************** TYPE DEFINITION ****************************************/
 typedef struct
 {
- xQueueHandle queue_tof_distance;
- xQueueHandle queue_hb_to_watchdog;
+ xQueueHandle       queue_tof_distance;
+ xQueueHandle       queue_hb_to_watchdog;
+ xSemaphoreHandle   mutex_i2c;
 }tskTOF_TaskParam_t;
 
 typedef struct
 {
     uint16_t distance_mm;
+    uint16_t distance_max_mm;
+    uint16_t distance_min_mm;
 }tskTOF_queue_msg_t;
 
 

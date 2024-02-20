@@ -92,6 +92,13 @@
 #define TSK_CNFG_QUEUE_LENGTH_BTN_TO_HMI        (2u)
 #define TSK_CNFG_QUEUE_LENGTH_TOF_TO_HMI        (1u)
 
+#define TSK_CNFG_SEMA_NAME_START_TEMP_SNSR      "semaTempSnsr"
+#define TSK_CNFG_SEMA_NAME_INIT_TOF_SNSR        "semaTofSnsr"
+#define TSK_CNFG_SEMA_LENGTH_START_TEMP_SNSR    (1u)
+#define TSK_CNFG_SEMA_LENGTH_INIT_TOF_SNSR      (1u)
+
+#define TSK_CNFG_MUTEX_NAME_I2C                 "mutI2C"
+
 #define TSK_CNFG_QUEUE_SET_HMI_SIZE            ( TSK_CNFG_QUEUE_LENGTH_TO_HMI \
                                                 + TSK_CNFG_QUEUE_LENGTH_BTN_TO_HMI \
                                                 + 1u)

@@ -70,6 +70,9 @@ typedef struct
     void  (*enter_screen)(void);
     void  (*leave_screen)(void);
     void  (*update)(const void* const data);
+    void  (*enter_edit)(void);
+    void  (*validate_edit)(void);
+    void  (*cancel_edit)(void);
 }tsk_HMI_screen_metadata_t;
 
 

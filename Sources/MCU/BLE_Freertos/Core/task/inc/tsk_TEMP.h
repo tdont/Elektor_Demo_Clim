@@ -55,6 +55,7 @@
 
 /******************** INCLUDES ***********************************************/
 #include <FreeRTOS.h>
+#include <semphr.h>
 #include <queue.h>
 
 /******************** CONSTANTS OF MODULE ************************************/
@@ -72,8 +73,9 @@
 /******************** TYPE DEFINITION ****************************************/
 typedef struct
 {
- xQueueHandle queue_temperature_sts;
- xQueueHandle queue_hb_to_watchdog;
+ xQueueHandle       queue_temperature_sts;
+ xQueueHandle       queue_hb_to_watchdog;
+ xSemaphoreHandle   mutex_i2c;
 }tskTEMP_TaskParam_t;
 
 typedef struct
