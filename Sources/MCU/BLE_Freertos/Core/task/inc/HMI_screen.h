@@ -56,6 +56,11 @@
 /******************** INCLUDES ***********************************************/
 #include <YACSWL.h>
 
+#include <FreeRTOS.h>
+#include <queue.h>
+
+#include "tsk_common.h"
+
 /******************** CONSTANTS OF MODULE ************************************/
 
 
@@ -79,7 +84,8 @@ typedef struct
     void  (*leave_screen)(void);
     void  (*update)(const void* const data, tskHMI_range_t* range);
     void  (*enter_edit)(void);
-    void  (*validate_edit)(void);
+    void  (*validate_edit)(tskCommon_hmi_stpt_msg_t* const msg_setpt,
+                            xQueueHandle queue_hmi_stpt);
     void  (*cancel_edit)(void);
 }tsk_HMI_screen_metadata_t;
 

@@ -331,7 +331,7 @@ static void vSetupOsExchangeObject(void)
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_TOF_TO_HMI);
 
     /* Create Queue for hmi to main transmission */
-    tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_HMI_SETPOINT, sizeof(tskTOF_queue_msg_t));
+    tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_HMI_SETPOINT, sizeof(tskCommon_hmi_stpt_msg_t));
     /* Check for an error */
     if (tmpQueueHandle == 0)
     {

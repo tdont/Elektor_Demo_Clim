@@ -112,8 +112,8 @@ typedef struct __attribute__((packed))
 }tskCommon_hmi_stpt_payload_pairing_t;
 typedef union __attribute__((packed))
 {
-    tskCommon_hmi_stpt_payload_cftrl_mode_t     ctlr_mode;
-    tskCommon_hmi_stpt_payload_clim_mode_t      clim;
+    tskCommon_hmi_stpt_payload_cftrl_mode_t     ctrl_mode;
+    tskCommon_hmi_stpt_payload_clim_mode_t      clim_mode;
     tskCommon_hmi_stpt_payload_temperature_t    temperature;
     tskCommon_hmi_stpt_payload_pairing_t        pairing;
 }tskCommon_hmi_stpt_msg_payload_t;
@@ -123,6 +123,17 @@ typedef struct __attribute__((packed))
     tskCommon_hmi_stpt_msg_header_t     header;
     tskCommon_hmi_stpt_msg_payload_t    payload;
 }tskCommon_hmi_stpt_msg_t;
+
+typedef struct __attribute__((packed))
+{
+    tskCommon_ble_mode_e    ctrl_mode;
+    tskCommon_clim_mode_e   clim_mode;
+    float                   temperature_stpt;
+    bool                    ble_pairing_in_progress;
+    uint16_t                ble_pairing_pin_code;
+    uint8_t                 ble_nb_device;
+    float                   temperature_current;
+}tskCommon_system_status_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 

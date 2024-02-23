@@ -58,6 +58,9 @@
 #include <HMI_screen_main.h>
 #include <HMI_status_bar.h>
 #include <HMI_screen_ctrl_mode.h>
+#include <HMI_screen_heating_mode.h>
+#include <HMI_screen_temperature_setpoint.h>
+#include <HMI_screen_ble_pairing.h>
 #include <queue.h>
 #include <task.h>
 
@@ -77,6 +80,7 @@
 
 
 /******************** CONSTANTS OF MODULE ************************************/
+#define TSK_HMI_REBOUNT_LIMIT_TIME_MS   700
 
 /******************** MACROS DEFINITION **************************************/
 
@@ -90,10 +94,12 @@ typedef struct
 }tsk_hmi_status_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
-static YACSGL_frame_t hmi_lcd_frame = {0};
-static tskHMI_status_bar_data_t status_bar_data = {0};
-static HMI_screen_main_t        screen_main_data = {0};
-static HMI_screen_ctrl_mode_sts_t   screen_ctrl_mode_data = {0};
+static YACSGL_frame_t                   hmi_lcd_frame = {0};
+static tskHMI_status_bar_data_t         status_bar_data = {0};
+static HMI_screen_main_t                screen_main_data = {0};
+static HMI_screen_ctrl_mode_sts_t       screen_ctrl_mode_data = {0};
+static HMI_screen_heating_mode_sts_t    screen_heating_mode_data = {0};
+static HMI_screen_temp_stpt_sts_t       screen_temp_stpt_data = {0};
 
 static YACSWL_widget_t hmi_root_widget={0};
 static YACSWL_label_t  hmi_screen_label = {0};
@@ -111,6 +117,14 @@ static tsk_HMI_screen_t hmi_screens[] = {   /* First screen in array is the main
                                             ,{
                                                 (void*)&screen_ctrl_mode_data,
                                                 &hmi_ctrl_mode_metadata
+                                            }
+                                            ,{
+                                                (void*)&screen_heating_mode_data,
+                                                &hmi_heating_mode_metadata
+                                            }
+                                            ,{
+                                                (void*)&screen_temp_stpt_data,
+                                                &hmi_temperature_stpt_metadata
                                             }
                                         };
 
@@ -134,9 +148,9 @@ void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param);
 void HMI_handle_incomming_messages_range(tskHMI_TaskParam_t* task_param);
 
 void HMI_go_to_main_screen(void);
-void HMI_go_to_next_screen(void);
+void HMI_btn_cb_go_to_next_screen(void);
 void HMI_evaluate_autotransition_to_main(void);
-void HMI_enter_leaved_edit_mode(void);
+void HMI_btn_cb_enter_leaved_edit_mode(xQueueHandle queue_setpoint);
 void HMI_cancel_edit_mode(void);
 
 void HMI_init_button(void);
@@ -439,11 +453,11 @@ void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param)
         {
             case BUTTON_USER1:
                 /* Go to next screen */
-                HMI_go_to_next_screen();
+                HMI_btn_cb_go_to_next_screen();
                 break;
             case BUTTON_USER2:
                 /* Enter / Leave edit mode */
-                HMI_enter_leaved_edit_mode();
+                HMI_btn_cb_enter_leaved_edit_mode(task_param->queue_hmi_setpoint);
                 break;
             default:
                 /* Do nothing */
@@ -478,8 +492,20 @@ void HMI_go_to_main_screen(void)
     HMI_set_screen_label(hmi_screens[tsk_status.cur_screen_idx].metadata->title);
 }
 
-void HMI_go_to_next_screen(void)
-{
+void HMI_btn_cb_go_to_next_screen(void)
+{   
+    static TickType_t last_tick = 0;
+    TickType_t current_tick = xTaskGetTickCount();
+
+    uint32_t elapsed_time_ms = (last_tick - current_tick) * portTICK_RATE_MS;
+
+    /* Filter rebound */
+    if(elapsed_time_ms < TSK_HMI_REBOUNT_LIMIT_TIME_MS )
+    {
+        /* Drop button considering it was too near the previous one */
+        return;
+    }
+
     HMI_cancel_edit_mode();
     hmi_screens[tsk_status.cur_screen_idx].metadata->leave_screen();
     tsk_status.cur_screen_idx++;
@@ -492,7 +518,10 @@ void HMI_go_to_next_screen(void)
     HMI_set_screen_label(hmi_screens[tsk_status.cur_screen_idx].metadata->title);
 
     /* Store time to remember when last change occured */
-    tsk_status.screen_change_tick = xTaskGetTickCount();
+    tsk_status.screen_change_tick = current_tick;
+
+    /* Save tick for rebound filter */
+    last_tick = current_tick;
 }
 
 void HMI_evaluate_autotransition_to_main(void)
@@ -514,15 +543,30 @@ void HMI_evaluate_autotransition_to_main(void)
     }
 }
 
-void HMI_enter_leaved_edit_mode(void)
+void HMI_btn_cb_enter_leaved_edit_mode(xQueueHandle queue_setpoint)
 {
+    static tskCommon_hmi_stpt_msg_t msg_setpoint = {0};
+    
+    static TickType_t last_tick = 0;
+    TickType_t current_tick = xTaskGetTickCount();
+
+    uint32_t elapsed_time_ms = (last_tick - current_tick) * portTICK_RATE_MS;
+
+    /* Filter rebound */
+    if(elapsed_time_ms < TSK_HMI_REBOUNT_LIMIT_TIME_MS )
+    {
+        /* Drop button considering it was too near the previous one */
+        return;
+    }
+
     if(     (tsk_status.edit_in_progress == true)
          && (hmi_screens[tsk_status.cur_screen_idx].metadata->validate_edit != NULL)
       )
     {
         tsk_status.edit_in_progress = false;
 
-        hmi_screens[tsk_status.cur_screen_idx].metadata->validate_edit();
+        hmi_screens[tsk_status.cur_screen_idx].metadata->validate_edit(&msg_setpoint, 
+                                                                        queue_setpoint);
 
         /* TODO Send new setpoint to main */
     }
@@ -536,7 +580,10 @@ void HMI_enter_leaved_edit_mode(void)
     }
 
     /* In all case store changing time */
-    tsk_status.screen_change_tick = xTaskGetTickCount();
+    tsk_status.screen_change_tick = current_tick;
+
+    /* Save time for rebound filter */
+    last_tick = current_tick;
 }
 
 void HMI_cancel_edit_mode(void)

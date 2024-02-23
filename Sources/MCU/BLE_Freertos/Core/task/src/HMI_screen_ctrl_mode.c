@@ -61,14 +61,14 @@
 #include "HMI_screen.h"
 
 /******************** CONSTANTS OF MODULE ************************************/
+/******************** MACROS DEFINITION **************************************/
+
+/******************** TYPE DEFINITION ****************************************/
 typedef struct 
 {
     bool init_complete;
     bool edit_in_progress;
 }HMICM_status_t;
-/******************** MACROS DEFINITION **************************************/
-
-/******************** TYPE DEFINITION ****************************************/
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 tsk_HMI_screen_metadata_t hmi_ctrl_mode_metadata =  {   "Control mode",
@@ -185,15 +185,31 @@ void vHMICM_enter_edit(void)
     HMI_CM_status.edit_in_progress = true;
 }
 
-void vHMICM_validate_edit(void)
+void vHMICM_validate_edit(tskCommon_hmi_stpt_msg_t* const msg_setpt,
+                            xQueueHandle queue_hmi_stpt)
 {
     /* Ensure init was completed */
     if(HMI_CM_status.init_complete == false)
     {
         return;
     }
+    /* Check parameters are valid */
+    if(msg_setpt == NULL)
+    {
+        return;
+    }
+    if(queue_hmi_stpt == NULL)
+    {
+        return;
+    }
+
+    /* Configure message to be send using provided buffer */
+    msg_setpt->header.msg_type = TC_HMI_STPT_TYPE_CTRL_MODE;
+    msg_setpt->payload.ctrl_mode.val = HMI_CM_setpoint.new_ctrl_mode;
 
     /* Send new setpoint to main */
+    xQueueSend(queue_hmi_stpt, &msg_setpt, 2); 
+
     /* TODO remove this dummy code */
 
     HMI_CM_status.edit_in_progress = false;

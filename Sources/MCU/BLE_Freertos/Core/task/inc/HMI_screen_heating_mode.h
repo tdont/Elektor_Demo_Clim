@@ -54,21 +54,43 @@
 #define TASK_INC_HMI_SCREEN_HEATING_MODE_H_
 
 /******************** INCLUDES ***********************************************/
+#include <YACSWL.h>
 
+#include "tsk_common.h"
+#include "HMI_screen.h"
 
 /******************** CONSTANTS OF MODULE ************************************/
 
-
 /******************** MACROS DEFINITION **************************************/
-
 
 /******************** TYPE DEFINITION ****************************************/
 
+typedef struct 
+{
+    tskCommon_clim_mode_e clim_mode;
+}HMI_screen_heating_mode_sts_t;
+
+typedef struct
+{
+    tskCommon_clim_mode_e   new_clim_mode;
+}HMI_screen_heating_mode_setpoint_t;
+
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
+extern tsk_HMI_screen_metadata_t hmi_heating_mode_metadata;
 
 
 /******************** API FUNCTION PROTOTYPE *********************************/
+void vHMIHM_init(const void* const screen_cm_data, YACSWL_widget_t* const root_widget);
+
+void vHMIHM_enter_screen(void);
+void vHMIHM_leave_screen(void);
+void vHMIHM_enter_edit(void);
+void vHMIHM_validate_edit(tskCommon_hmi_stpt_msg_t* const msg_setpt,
+                               xQueueHandle queue_hmi_stpt);
+void vHMIHM_cancel_edit(void);
+
+void vHMIHM_update(const void* const screen_cm_data, tskHMI_range_t* range);
 
 #endif /* TASK_INC_HMI_SCREEN_HEATING_MODE_H_ */
 

@@ -54,7 +54,10 @@
 #define TASK_INC_HMI_SCREEN_TEMPERATURE_SETPOINT_H_
 
 /******************** INCLUDES ***********************************************/
+#include <YACSWL.h>
 
+#include "tsk_common.h"
+#include "HMI_screen.h"
 
 /******************** CONSTANTS OF MODULE ************************************/
 
@@ -63,12 +66,30 @@
 
 
 /******************** TYPE DEFINITION ****************************************/
+typedef struct 
+{
+    float temperature_stpt;
+}HMI_screen_temp_stpt_sts_t;
 
+typedef struct
+{
+    float new_temperature_stpt;
+}HMI_screen_temperature_setpoint_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
-
+extern tsk_HMI_screen_metadata_t hmi_temperature_stpt_metadata;
 
 /******************** API FUNCTION PROTOTYPE *********************************/
+void vHMITS_init(const void* const screen_cm_data, YACSWL_widget_t* const root_widget);
+
+void vHMITS_enter_screen(void);
+void vHMITS_leave_screen(void);
+void vHMITS_enter_edit(void);
+void vHMITS_validate_edit(tskCommon_hmi_stpt_msg_t* const msg_setpt,
+                               xQueueHandle queue_hmi_stpt);
+void vHMITS_cancel_edit(void);
+
+void vHMITS_update(const void* const screen_cm_data, tskHMI_range_t* range);
 
 #endif /* TASK_INC_HMI_SCREEN_TEMPERATURE_SETPOINT_H_ */
 

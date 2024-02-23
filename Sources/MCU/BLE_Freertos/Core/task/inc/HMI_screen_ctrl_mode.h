@@ -85,7 +85,8 @@ void vHMICM_init(const void* const screen_cm_data, YACSWL_widget_t* const root_w
 void vHMICM_enter_screen(void);
 void vHMICM_leave_screen(void);
 void vHMICM_enter_edit(void);
-void vHMICM_validate_edit(void);
+void vHMICM_validate_edit(tskCommon_hmi_stpt_msg_t* const msg_setpt,
+                               xQueueHandle queue_hmi_stpt);
 void vHMICM_cancel_edit(void);
 
 void vHMICM_update(const void* const screen_cm_data, tskHMI_range_t* range);
