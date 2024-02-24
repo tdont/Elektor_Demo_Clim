@@ -91,12 +91,14 @@
 #define TSK_CNFG_QUEUE_NAME_BTN_TO_HMI          "QueBtnToHMI"
 #define TSK_CNFG_QUEUE_NAME_TOF_TO_HMI          "QueTofToHMI"
 #define TSK_CNFG_QUEUE_NAME_HMI_SETPOINT        "QueHMIStpt"
+#define TSK_CNFG_QUEUE_NAME_TEMP_TO_MAIN        "QueTempToMain"
 
 #define TSK_CNFG_QUEUE_LENGTH_HB_TO_WDG         (TSK_CNFG_MONITORED_ID_CNT * 3)
 #define TSK_CNFG_QUEUE_LENGTH_TO_HMI            (3u)
 #define TSK_CNFG_QUEUE_LENGTH_BTN_TO_HMI        (2u)
 #define TSK_CNFG_QUEUE_LENGTH_TOF_TO_HMI        (1u)
 #define TSK_CNFG_QUEUE_LENGTH_HMI_SETPOINT      (2u)
+#define TSK_CNFG_QUEUE_LENGTH_TEMP_TO_MAIN      (1u)
 
 #define TSK_CNFG_SEMA_NAME_START_TEMP_SNSR      "semaTempSnsr"
 #define TSK_CNFG_SEMA_NAME_INIT_TOF_SNSR        "semaTofSnsr"

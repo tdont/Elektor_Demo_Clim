@@ -353,6 +353,7 @@ static void vSetupOsExchangeObject(void)
         /* Reset the board, try to allow a fix from bootloader */
         NVIC_SystemReset();
     }
+    /* TODO Feed the semaphore to temp task to wait upon prior starting */
     /* Add Semaphore to registry */
     vQueueAddToRegistry(tmpSemaHandle, TSK_CNFG_SEMA_NAME_START_TEMP_SNSR);
 

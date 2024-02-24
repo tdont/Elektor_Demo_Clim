@@ -143,6 +143,12 @@ void HMI_handle_incomming_messages_feedback(tskHMI_TaskParam_t* task_param);
 
 void HMI_handle_incomming_messages_fdbk_temperature(tskHMI_TaskParam_t* task_param, 
                                         const tskHMI_msg_fdbk_pld_temperature_t* const temp_pld);
+void HMI_handle_incomming_messages_fdbk_ctrl_mode(tskHMI_TaskParam_t* task_param, 
+                                        const tskHMI_msg_fdbk_pld_ctrl_t* const ctrlmode_pld);
+void HMI_handle_incomming_messages_ble_status_mode(tskHMI_TaskParam_t* task_param, 
+                                        const tskHMI_msg_fdbk_pld_ble_sts_t* const ble_status_pld);
+void HMI_handle_incomming_messages_clim_status_mode(tskHMI_TaskParam_t* task_param, 
+                                        const tskHMI_msg_fdbk_pld_clim_sts_t* const clim_status_pld);
 
 void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param);
 void HMI_handle_incomming_messages_range(tskHMI_TaskParam_t* task_param);
@@ -423,7 +429,19 @@ void HMI_handle_incomming_messages_feedback(tskHMI_TaskParam_t* task_param)
         {
             case HMI_MSG_FDBK_ID_TEMP:
                 HMI_handle_incomming_messages_fdbk_temperature(task_param,
-                                                &(feedback_msg.payload.temp_pld));
+                                                &(feedback_msg.payload.temperature));
+                break;
+            case HMI_MSG_FDBK_ID_CTRL_MODE:
+                HMI_handle_incomming_messages_fdbk_ctrl_mode(task_param, 
+                                                &(feedback_msg.payload.control_mode));
+                break;
+            case HMI_MSG_FDBK_ID_BLE:
+                HMI_handle_incomming_messages_ble_status_mode(task_param,
+                                                &(feedback_msg.payload.ble_status));
+                break;
+            case HMI_MSG_FDBK_ID_CLIM:
+                HMI_handle_incomming_messages_clim_status_mode(task_param,
+                                                &(feedback_msg.payload.clim_status));
                 break;
             default:
                 /* Drop message */
@@ -437,6 +455,37 @@ void HMI_handle_incomming_messages_fdbk_temperature(tskHMI_TaskParam_t* task_par
 {
     /* Update data */
     screen_main_data.ambient_temperature = temp_pld->temperature;
+    return;
+}
+
+void HMI_handle_incomming_messages_fdbk_ctrl_mode(tskHMI_TaskParam_t* task_param, 
+                                            const tskHMI_msg_fdbk_pld_ctrl_t* const ctrlmode_pld)
+{
+    /* Update data to appropriate screen */
+    screen_ctrl_mode_data.ctrl_mode = ctrlmode_pld->ctrl_mode;
+    /* Update data of status bar */
+    status_bar_data.ble_manual_mode = ctrlmode_pld->ctrl_mode;
+    return;
+}
+
+void HMI_handle_incomming_messages_ble_status_mode(tskHMI_TaskParam_t* task_param, 
+                                        const tskHMI_msg_fdbk_pld_ble_sts_t* const ble_status_pld)
+{
+    /* TODO Update data to appropriate screen */
+    /* Update data of status bar */
+    status_bar_data.nb_device_connected = ble_status_pld->nb_device_connected;
+    return;
+}
+void HMI_handle_incomming_messages_clim_status_mode(tskHMI_TaskParam_t* task_param, 
+                                        const tskHMI_msg_fdbk_pld_clim_sts_t* const clim_status_pld)
+{
+    /* Update data to appropriate screen */
+    screen_heating_mode_data.clim_mode = clim_status_pld->clim_mode;
+    screen_temp_stpt_data.temperature_stpt = clim_status_pld->temperature_stpt;
+    /* Update data of status bar */
+    status_bar_data.clim_mode = clim_status_pld->clim_mode;
+    status_bar_data.setpoint_temperature = clim_status_pld->temperature_stpt;
+    return;
 }
 
 void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param)

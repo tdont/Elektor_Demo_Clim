@@ -76,7 +76,7 @@ typedef enum
 {
     TC_BLE_MODE_BLE = 0,
     TC_BLE_MODE_MANUAL
-}tskCommon_ble_mode_e;
+}tskCommon_ctrl_mode_e;
 
 typedef enum
 {
@@ -93,7 +93,7 @@ typedef struct __attribute__((packed))
 
 typedef struct __attribute__((packed))
 {
-    tskCommon_ble_mode_e val;
+    tskCommon_ctrl_mode_e val;
 }tskCommon_hmi_stpt_payload_cftrl_mode_t;
 
 typedef struct __attribute__((packed))
@@ -124,16 +124,6 @@ typedef struct __attribute__((packed))
     tskCommon_hmi_stpt_msg_payload_t    payload;
 }tskCommon_hmi_stpt_msg_t;
 
-typedef struct __attribute__((packed))
-{
-    tskCommon_ble_mode_e    ctrl_mode;
-    tskCommon_clim_mode_e   clim_mode;
-    float                   temperature_stpt;
-    bool                    ble_pairing_in_progress;
-    uint16_t                ble_pairing_pin_code;
-    uint8_t                 ble_nb_device;
-    float                   temperature_current;
-}tskCommon_system_status_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 

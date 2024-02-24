@@ -69,6 +69,8 @@ typedef struct
     xQueueHandle queue_hb_to_watchdog;
     xQueueHandle queue_hmi_setpoint;
     xQueueHandle queue_hmi_feedback;
+    xQueueHandle queue_to_atlantick_ir;
+    xQueueHandle queue_temperature_sensor;
  }tskMAIN_TaskParam_t;
 
 

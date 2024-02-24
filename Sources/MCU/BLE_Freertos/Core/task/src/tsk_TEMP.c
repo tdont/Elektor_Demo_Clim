@@ -109,7 +109,7 @@ void vTEMP_task(void *pv_param_task)
     float temp_raw_value = 0.0;
     float filtered_value = 10.0;
     static tskHMI_msg_fdbk_msg_t msg_temp_to_hmi = {0};
-    tskHMI_msg_fdbk_pld_temperature_t* const temperature_payload = &(msg_temp_to_hmi.payload.temp_pld);
+    tskHMI_msg_fdbk_pld_temperature_t* const temperature_payload = &(msg_temp_to_hmi.payload.temperature);
     msg_temp_to_hmi.header.fdbk_id = HMI_MSG_FDBK_ID_TEMP;
 
     /* TODO fix dummy wait (synchronise with task that shall create a queue set )*/

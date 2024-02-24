@@ -280,7 +280,7 @@ void vHMITS_update(const void* const screen_cm_data, tskHMI_range_t* range)
     /* Convert value to text */
     static char temp_conf[HMI_SCREEN_TEMP_BUFF_CONV_TEMP] = {};
     snprintf(temp_conf, HMI_SCREEN_TEMP_BUFF_CONV_TEMP, "%2.0f oC", temperature_to_display);
-    
+
     /* Display value */
     YACSWL_label_set_text(&HMI_TS_lbl_temp_stpt, temp_conf);
 

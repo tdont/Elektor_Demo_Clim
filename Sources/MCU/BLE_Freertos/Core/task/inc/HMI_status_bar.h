@@ -71,7 +71,7 @@
 typedef struct
 {
     float                   setpoint_temperature;
-    tskCommon_ble_mode_e    ble_manual_mode;
+    tskCommon_ctrl_mode_e    ble_manual_mode;
     uint8_t                 nb_device_connected;
     tskCommon_clim_mode_e   clim_mode; 
 

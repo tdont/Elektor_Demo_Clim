@@ -68,12 +68,12 @@
 /******************** TYPE DEFINITION ****************************************/
 typedef struct
 {
-    tskCommon_ble_mode_e   ctrl_mode;
+    tskCommon_ctrl_mode_e   ctrl_mode;
 }HMI_screen_ctrl_mode_sts_t;
 
 typedef struct
 {
-    tskCommon_ble_mode_e   new_ctrl_mode;
+    tskCommon_ctrl_mode_e   new_ctrl_mode;
 }HMI_screen_ctrl_mode_setpoint_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/

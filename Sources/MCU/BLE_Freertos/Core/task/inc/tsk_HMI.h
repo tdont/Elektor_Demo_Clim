@@ -57,6 +57,7 @@
 #include <FreeRTOS.h>
 #include <queue.h>
 #include <stdint.h>
+#include "tsk_common.h"
 
 /******************** CONSTANTS OF MODULE ************************************/
 #define HMI_HB_SEND_TIME_MS     200  /* Indicate when the task shall send a heartbeat */
@@ -66,7 +67,10 @@
 
 typedef enum
 {
-    HMI_MSG_FDBK_ID_TEMP = 0
+    HMI_MSG_FDBK_ID_TEMP = 0,
+    HMI_MSG_FDBK_ID_BLE,
+    HMI_MSG_FDBK_ID_CLIM,
+    HMI_MSG_FDBK_ID_CTRL_MODE
 }tskHMI_msg_fdbk_id_e;
 
 
@@ -95,10 +99,33 @@ typedef struct __attribute__((packed))
     float temperature;
 }tskHMI_msg_fdbk_pld_temperature_t;
 
+typedef struct __attribute__((packed))
+{
+    tskCommon_ctrl_mode_e   ctrl_mode;
+}tskHMI_msg_fdbk_pld_ctrl_t;
+
+typedef struct __attribute__((packed))
+{
+    float                   temperature_stpt;
+    tskCommon_clim_mode_e   clim_mode;
+}tskHMI_msg_fdbk_pld_clim_sts_t;
+
+typedef struct __attribute__((packed))
+{
+    bool                    pairing_in_progress;
+    uint16_t                pairing_pin_code;
+    uint8_t                 nb_device_connected;
+}tskHMI_msg_fdbk_pld_ble_sts_t;
+
+
 typedef union __attribute__((packed))
 {
     uint8_t                             rawData[1];
-    tskHMI_msg_fdbk_pld_temperature_t   temp_pld;
+    tskHMI_msg_fdbk_pld_temperature_t   temperature;
+    tskHMI_msg_fdbk_pld_ctrl_t          control_mode;
+    tskHMI_msg_fdbk_pld_ble_sts_t       ble_status;
+    tskHMI_msg_fdbk_pld_clim_sts_t      clim_status;
+
 }tskHMI_msg_fdbk_payload_t;
 
 typedef struct  __attribute__((packed))

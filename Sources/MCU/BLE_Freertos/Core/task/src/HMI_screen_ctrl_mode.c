@@ -258,7 +258,7 @@ void vHMICM_update(const void* const screen_cm_data, tskHMI_range_t* range)
         HMI_CM_progress_bar.progress = 0;
     }
 
-    tskCommon_ble_mode_e mode_to_display = 0;
+    tskCommon_ctrl_mode_e mode_to_display = 0;
 
     if(HMI_CM_status.edit_in_progress == false)
     {
