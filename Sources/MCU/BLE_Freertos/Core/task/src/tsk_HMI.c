@@ -412,6 +412,15 @@ void HMI_handle_incomming_messages(tskHMI_TaskParam_t* task_param,
     {
         HMI_handle_incomming_messages_range(task_param);
     }
+    else
+    {
+        /* If queue is not null (timeout), then this message is unexpected */
+        if(queue_hdl_data_available != NULL)
+        {
+            /* Unsupported message */
+            vTskCommon_ErrorLoop();
+        }
+    }
 }
 
 void HMI_handle_incomming_messages_feedback(tskHMI_TaskParam_t* task_param)
