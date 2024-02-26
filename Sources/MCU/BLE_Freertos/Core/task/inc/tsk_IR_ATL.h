@@ -27,11 +27,11 @@
  * \{ */
 
 /**
- * \file tsk_MAIN.h
+ * \file tsk_IR_ATL.h
  *
  * File description
  * \author Thibaut DONTAIL
- * \date Feb 14, 2024
+ * \date Feb 26, 2024
  */
 
  /**
@@ -50,18 +50,18 @@
 
 
 /* Prevent multiple inclusions */
-#ifndef TASK_INC_TSK_MAIN_H_
-#define TASK_INC_TSK_MAIN_H_
+#ifndef TASK_INC_TSK_IR_ATL_H_
+#define TASK_INC_TSK_IR_ATL_H_
 
 /******************** INCLUDES ***********************************************/
 #include <FreeRTOS.h>
 #include <queue.h>
-
-#include "tsk_common.h"
+#include <stdint.h>
 
 /******************** CONSTANTS OF MODULE ************************************/
-#define MAIN_HB_SEND_TIME_MS    200  /* Indicate when the task shall send a heartbeat */
-#define MAIN_TASK_LOOP_TIME_MS  50  
+#define IRATL_HB_SEND_TIME_MS           200  /* Indicate when the task shall send a heartbeat */
+
+#define IRATL_DELAY_PRIOR_TO_SEND_MS    1000 /* Ensure that enough time has elapsed since last setpoint reception */
 
 /******************** MACROS DEFINITION **************************************/
 
@@ -69,19 +69,10 @@
 /******************** TYPE DEFINITION ****************************************/
 typedef struct
 {
-    xQueueHandle queue_hb_to_watchdog;
-    xQueueHandle queue_hmi_setpoint;
-    xQueueHandle queue_hmi_feedback;
-    xQueueHandle queue_to_ir;
-    xQueueHandle queue_temperature_sensor;
- }tskMAIN_TaskParam_t;
+ xQueueHandle       queue_to_ir_atl;
+ xQueueHandle       queue_hb_to_watchdog;
+}tskIRATL_TaskParam_t;
 
-
-typedef struct __attribute__((packed))
-{
-    tskCommon_clim_mode_e   clim_mode;
-    float                   temperature_stpt;
-}tskMAIN_clim_stpt_to_IR_msg_t;
 
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
@@ -91,14 +82,14 @@ typedef struct __attribute__((packed))
 /**
 ******************************************************************************
 * \par Description :
-* Task loop for MAIN
+* Task loop for IR atlantic sender
 *
 * \param[in] pvParameters   Pointer the the thread parameters
 *
 *****************************************************************************/
-void vMAIN_task(void *pvParameters);
+void vIRATL_task(void *pvParameters);
 
-#endif /* TASK_INC_TSK_MAIN_H_ */
+#endif /* TASK_INC_TSK_IR_ATL_H_ */
 
 /**\} */
 /**\} */

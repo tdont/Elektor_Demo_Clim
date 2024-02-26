@@ -60,26 +60,27 @@
 #include "tsk_config.h"
 #include "tsk_HMI.h"
 #include "tsk_TEMP.h"
+#include "tsk_IR_ATL.h"
 
 /******************** CONSTANTS OF MODULE ************************************/
 
 /******************** MACROS DEFINITION **************************************/
 
 /******************** TYPE DEFINITION ****************************************/
-typedef struct __attribute__((packed))
+typedef struct 
 {
     bool                    pairing_in_progress;
     uint16_t                pairing_pin_code;
     uint8_t                 nb_device_connected;
 }tskMAIN_ble_status_t;
 
-typedef struct __attribute__((packed))
+typedef struct 
 {
     float                   temperature_stpt;
     tskCommon_clim_mode_e   clim_mode;
 }tskMAIN_clim_status_t;
 
-typedef struct __attribute__((packed))
+typedef struct 
 {
     tskCommon_ctrl_mode_e   ctrl_mode;
     tskMAIN_clim_status_t   clim_status;
@@ -125,6 +126,8 @@ void MAIN_send_hmi_feedback_clim_status(xQueueHandle queue_to_hmi, tskHMI_msg_fd
 void MAIN_send_hmi_feedback_ble_status(xQueueHandle queue_to_hmi, tskHMI_msg_fdbk_msg_t* hmi_msg_feedback);
 void MAIN_send_hmi_feedback_ctrl_mode(xQueueHandle queue_to_hmi, tskHMI_msg_fdbk_msg_t* hmi_msg_feedback);
 void MAIN_send_hmi_feedback_temperature(xQueueHandle queue_to_hmi, tskHMI_msg_fdbk_msg_t* hmi_msg_feedback);
+
+void MAIN_send_IR_setpoint(xQueueHandle queue_to_IR);
 
 /******************** API FUNCTIONS ******************************************/
 void vMAIN_task(void *pv_param_task)
@@ -375,6 +378,9 @@ void MAIN_handle_incom_msgs_hmi_setpoint_ctrlmode(tskMAIN_TaskParam_t* task_para
 
     /* Provide feedback to HMI */
     MAIN_send_hmi_feedback_ctrl_mode(task_param->queue_hmi_feedback, hmi_msg_feedback);
+
+    /* Send to IR new setpoint */
+    MAIN_send_IR_setpoint(task_param->queue_to_ir);
 }
 
 void MAIN_handle_incom_msgs_hmi_setpoint_clim_mode(tskMAIN_TaskParam_t* task_param,
@@ -401,6 +407,9 @@ void MAIN_handle_incom_msgs_hmi_setpoint_clim_mode(tskMAIN_TaskParam_t* task_par
 
     /* Provide feedback to HMI */
     MAIN_send_hmi_feedback_clim_status(task_param->queue_hmi_feedback, hmi_msg_feedback);
+
+    /* Send to IR new setpoint */
+    MAIN_send_IR_setpoint(task_param->queue_to_ir);
 }
 void MAIN_handle_incom_msgs_hmi_setpoint_temperature(tskMAIN_TaskParam_t* task_param,
                                 tskHMI_msg_fdbk_msg_t* hmi_msg_feedback,
@@ -426,6 +435,9 @@ void MAIN_handle_incom_msgs_hmi_setpoint_temperature(tskMAIN_TaskParam_t* task_p
 
     /* Provide feedback to HMI */
     MAIN_send_hmi_feedback_clim_status(task_param->queue_hmi_feedback, hmi_msg_feedback);
+
+    /* Send to IR new setpoint */
+    MAIN_send_IR_setpoint(task_param->queue_to_ir);
 }
 
 void MAIN_handle_incom_msgs_hmi_setpoint_pairing(tskMAIN_TaskParam_t* task_param,
@@ -508,6 +520,23 @@ void MAIN_send_hmi_feedback_temperature(xQueueHandle queue_to_hmi, tskHMI_msg_fd
     hmi_msg_feedback->payload.temperature.temperature = main_system_status.ambient_temperature;
 
     xQueueSend(queue_to_hmi, hmi_msg_feedback, 1);
+}
+
+void MAIN_send_IR_setpoint(xQueueHandle queue_to_IR)
+{
+    if(queue_to_IR == NULL)
+    {
+        return;
+    }
+
+    static tskMAIN_clim_stpt_to_IR_msg_t msg_to_ir = {0};
+
+    /* Build message to IR */
+    msg_to_ir.temperature_stpt = main_system_status.clim_status.temperature_stpt;
+    msg_to_ir.clim_mode = main_system_status.clim_status.clim_mode;
+
+    /* Send message to IR transmitter task */
+    xQueueSend(queue_to_IR, &msg_to_ir, 1);
 }
 /**\} */
 /**\} */

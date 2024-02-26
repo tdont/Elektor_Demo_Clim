@@ -56,6 +56,7 @@
 #include "tsk_TEMP.h"
 #include "tsk_MAIN.h"
 #include "tsk_TOF.h"
+#include "tsk_IR_ATL.h"
 
 /* USER CODE END Includes */
 
@@ -82,6 +83,7 @@ static tskHMI_TaskParam_t           param_HMI = {0};
 static tskTEMP_TaskParam_t          param_TEMP = {0};
 static tskTOF_TaskParam_t           param_TOF = {0};
 static tskMAIN_TaskParam_t          param_MAIN = {0};
+static tskIRATL_TaskParam_t         param_IRATL = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -284,9 +286,11 @@ static void vSetupOsExchangeObject(void)
     param_TEMP.queue_hb_to_watchdog = tmpQueueHandle;
     param_TOF.queue_hb_to_watchdog = tmpQueueHandle;
     param_MAIN.queue_hb_to_watchdog = tmpQueueHandle;
+    param_IRATL.queue_hb_to_watchdog = tmpQueueHandle;
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HB_TO_WDG);
 
+    /***********************************************************************************/
     /* Create Queue for message to HMI transmission */
     tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_STS_TO_HMI, sizeof(tskHMI_msg_fdbk_msg_t));
     /* Check for an error */
@@ -301,6 +305,7 @@ static void vSetupOsExchangeObject(void)
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_STS_TO_HMI);
 
+    /***********************************************************************************/
     /* Create Queue for btn to hmi transmission */
     tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_BTN_TO_HMI, sizeof(Button_TypeDef));
     /* Check for an error */
@@ -314,6 +319,7 @@ static void vSetupOsExchangeObject(void)
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_BTN_TO_HMI);
 
+    /***********************************************************************************/
     /* Create Queue for tof to hmi transmission */
     tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_TOF_TO_HMI, sizeof(tskTOF_queue_msg_t));
     /* Check for an error */
@@ -328,6 +334,7 @@ static void vSetupOsExchangeObject(void)
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_TOF_TO_HMI);
 
+    /***********************************************************************************/
     /* Create Queue for hmi to main transmission */
     tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_HMI_SETPOINT, sizeof(tskCommon_hmi_stpt_msg_t));
     /* Check for an error */
@@ -341,6 +348,21 @@ static void vSetupOsExchangeObject(void)
     param_MAIN.queue_hmi_setpoint = tmpQueueHandle;
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HMI_SETPOINT);
+
+    /***********************************************************************************/
+    /* Create Queue for message to HMI transmission */
+    tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_TO_IR_ATL, sizeof(tskMAIN_clim_stpt_to_IR_msg_t));
+    /* Check for an error */
+    if (tmpQueueHandle == 0)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+    /* Store the value to tasks parameters */
+    param_IRATL.queue_to_ir_atl = tmpQueueHandle;
+    param_MAIN.queue_to_ir = tmpQueueHandle;
+    /* Add queue to registry */
+    vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_TO_IR_ATL);
 
     /***********************************************************************************/
     /* Create Semaphore for delaying start of TEMP_sensor looping */
@@ -450,6 +472,18 @@ static void vStartTasks(void)
     /* MAIN thread */
     ret = xTaskCreate(vMAIN_task, (const char * const) TSK_CNFG_NAME_MAIN,
                         TSK_CNFG_STACKSIZE_MAIN, &param_MAIN, TSK_CNFG_PRIORITY_MAIN,
+                        (xTaskHandle *) NULL);
+
+    /* Check whether task was created */
+    if (ret != pdTRUE)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+
+    /* IR_ATL thread */
+    ret = xTaskCreate(vIRATL_task, (const char * const) TSK_CNFG_NAME_IR_ATL,
+                        TSK_CNFG_STACKSIZE_IRATL, &param_IRATL, TSK_CNFG_PRIORITY_IRATL,
                         (xTaskHandle *) NULL);
 
     /* Check whether task was created */
