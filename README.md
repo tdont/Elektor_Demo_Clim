@@ -1,12 +1,94 @@
-# elektor Democratic Clim
+# Elektor Democratic Clim
+
+## 1) Project description
+This project aims to create a democratic tools for controlling airconditionning temperature in open spaces with multiples coworkers.
+
+The system allows two mode :
+- **Manual**, to be used if someone is just using the space part time, override all setting (similar to an IR remote)
+- **BLE**, allows up to 8 smartphone to be connected and to choose a temperature. 
+-- The temperature is selected based on the temperature choosen and the smartphone near the device (accomodate for people going in or out of the space) 
+-- The temperature setpoint is either a mean value or a median value (to be decided)
+-- The mode of the Air conditionning (heating or cooling) is automaticaly chosen by the software (by using the ambient temperature)
+
+It is also using STM32 BLE chips in order to particiape to the elektor contest
+
+Only the IR part of the project is specific to the Atlantic air conditionning system. The rest can be reused at will for any similar project or to recreate an IR remote.
+
+## 2) Project status
+
+Realised:
+- Watchdog task is created and monitor each task requesting to be monitored
+- TOF task initialises TOF sensor and send periodic distance to HMI task
+- BTN initialised and sending 'top' to the HMI task 
+- HMI task initialises OLED screen and receive information from Btn/TOF and Main task feedback
+- HMI task handles transition betweend different screens and handles edition of values
+- HMI task accept any number of screens, and roll back to first screen after 10s (rollback not performed during edition)
+- HMI task sends setpoint to Main TASK
+- Temperature task initialises temperature sensor, filters value and send periodic temperature to MAIN task
+- Main task retrieves setpoint from HMI
+- Main task receives ambient temperature
+- Main task provide feedback to HMI task
+- Capture and reverse engineering of the Atlantic IR remote protocol
+
+Ongoing:
+- IR task retrieve setpoint
+- IR task 
 
 
-## Project description
-This project aims to create a democratic tools for controlling airconditionning temperature in open spaces with multiples coworkers
+To be done:
+- BLE communication, but the BLE stack is up and running, needs to be configured
+- Smartphone application
+- Hardware watchdog configuration and feeding
 
-It is also in order to particiape to the elektor contest using STM32 BLE chips
 
-## Quick developping start guide 
-TODO
+## 3) HMI behaviour
 
-    might refer a markdown file present in the sources folder
+The HMI consists of two buttons, a TOF (distance) sensor used as analog input and an OLED screen.
+
+The Left button (B1) serve two purposes: 
+- it is used to navigate through all screen (in a carousel) 
+- During edition, it is used to cancel an ongoing edition and going to the next screen
+
+The Right button (B2) serve two purposes:
+- Enter in edition mode (if the current screen allow such action)
+    A value being edited has the border of it's widget visible
+- Validate the value set 
+
+The TOF sensor is used to measure distance between the board and the user's hand.
+As it is difficult to finaly adjust value without any help, a progress bar appears on screen when the edition mode is ongoing
+
+## 4) Screen composition
+
+The screen is based on widget. 
+A widget located at the top is used to display the screen title (could be empty if an empty string is provided)
+At the bottom, a widget status bar is created and indicates:
+- The Control mode: BLE (smartphones) or manual by using HMI
+- The actual mode of the air conditionning system: Offline, Cooling or heating
+- The temperature setpoint in °C
+
+The middle of the screen is left unused for each specific screen needs
+
+## 5) Atlantic Air conditionning IR remote protocol reverse engineering
+
+## 6) Documentation 
+### 6.1) Software Architecture
+
+The software architecture is available at [./Documentation/Technical_Documentation/Architecture/_Architecture.md](./Documentation/Technical_Documentation/Architecture/_Architecture.md)
+Diagrams are in plantuml and are available at ./Documentation/Technical_Documentation/Architecture/
+
+### 6.2) Project folders
+**Documentation/Datasheets** folder provides all documentation provided by STM32
+**Documentation/Internal_Documentation** folder provides source template and coding rules
+**Documentation/Reverse_atlantic_protocol** folder provides captures and interpretation of Atlantic IR transmission
+**Documentation/Technical_Documentation** folder provides the architectures and specification of the software
+
+**Sources/MCU** folder provides Sources code and project for STM32Cube IDE
+**Sources/tools** folder provides tools needed to realise this project (e.g. IR decoder for DSView logic analyser )
+
+**Bin/MCU** folder will provides an .hex file containing the last compiled version of the software 
+
+## 7) Quick developping start guide
+
+The software is build using STM32Cube IDE V1.13.2
+**/!\\** Some file generated by cubeIDE and are modified afteward (spi.c and i2c.c) in order to remove MX_SPI1_Init and MX_I2C3_Init (If these file are not generated then HAL_spi and HAL_i2c file are not imported into the project)
+
