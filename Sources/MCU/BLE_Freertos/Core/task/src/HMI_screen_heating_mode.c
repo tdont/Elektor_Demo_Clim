@@ -210,7 +210,7 @@ void vHMIHM_validate_edit(tskCommon_hmi_stpt_msg_t* const msg_setpt,
     msg_setpt->payload.clim_mode.val = HMI_HM_setpoint.new_clim_mode;
 
     /* Send new setpoint to main */
-    xQueueSend(queue_hmi_stpt, &msg_setpt, 2); 
+    xQueueSend(queue_hmi_stpt, msg_setpt, 2); 
 
     /* TODO remove this dummy code */
 

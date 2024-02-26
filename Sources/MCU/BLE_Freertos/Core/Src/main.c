@@ -288,7 +288,7 @@ static void vSetupOsExchangeObject(void)
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HB_TO_WDG);
 
     /* Create Queue for message to HMI transmission */
-    tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_TO_HMI, sizeof(tskHMI_msg_fdbk_msg_t));
+    tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_STS_TO_HMI, sizeof(tskHMI_msg_fdbk_msg_t));
     /* Check for an error */
     if (tmpQueueHandle == 0)
     {
@@ -298,10 +298,8 @@ static void vSetupOsExchangeObject(void)
     /* Store the value to tasks parameters */
     param_HMI.queue_hmi_feedback = tmpQueueHandle;
     param_MAIN.queue_hmi_feedback = tmpQueueHandle;
-    /* TODO root message from temperature directly to main which shall duplicate if needed to hmi */
-    param_TEMP.queue_temperature_sts = tmpQueueHandle;
     /* Add queue to registry */
-    vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HMI_SETPOINT);
+    vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_STS_TO_HMI);
 
     /* Create Queue for btn to hmi transmission */
     tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_BTN_TO_HMI, sizeof(Button_TypeDef));
@@ -354,8 +352,23 @@ static void vSetupOsExchangeObject(void)
         NVIC_SystemReset();
     }
     /* TODO Feed the semaphore to temp task to wait upon prior starting */
+    
     /* Add Semaphore to registry */
     vQueueAddToRegistry(tmpSemaHandle, TSK_CNFG_SEMA_NAME_START_TEMP_SNSR);
+
+    /***********************************************************************************/
+    /* Create Semaphore for feeding temperature to main */
+    tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_TEMP_TO_MAIN, sizeof(tskTEMP_queue_msg_t));
+    /* Check for an error */
+    if (tmpSemaHandle == 0)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+    param_MAIN.queue_temperature_sensor = tmpQueueHandle;
+    param_TEMP.queue_temperature_sts = tmpQueueHandle;
+    /* Add Semaphore to registry */
+    vQueueAddToRegistry(tmpSemaHandle, TSK_CNFG_QUEUE_NAME_TEMP_TO_MAIN);
 
     /***********************************************************************************/
     /* Create Mutex to be used by all tasks using I2C (as the driver does not support concurent accesses ) */

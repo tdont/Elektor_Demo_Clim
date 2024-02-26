@@ -108,9 +108,7 @@ void vTEMP_task(void *pv_param_task)
 
     float temp_raw_value = 0.0;
     float filtered_value = 10.0;
-    static tskHMI_msg_fdbk_msg_t msg_temp_to_hmi = {0};
-    tskHMI_msg_fdbk_pld_temperature_t* const temperature_payload = &(msg_temp_to_hmi.payload.temperature);
-    msg_temp_to_hmi.header.fdbk_id = HMI_MSG_FDBK_ID_TEMP;
+    static tskTEMP_queue_msg_t msg_temp_to_main = {0};
 
     /* TODO fix dummy wait (synchronise with task that shall create a queue set )*/
     vTaskDelay(1000 / portTICK_RATE_MS);
@@ -135,8 +133,8 @@ void vTEMP_task(void *pv_param_task)
                                 (TEMP_SENSOR_RC_COEF + 1);
 
             /* TODO Send value to main */
-            temperature_payload->temperature = filtered_value - TEMP_SENSOR_TEMP_OFFSET;
-            xQueueSend(task_param->queue_temperature_sts, &msg_temp_to_hmi, 0); /* Don't wait on queue*/
+            msg_temp_to_main.temperature = filtered_value - TEMP_SENSOR_TEMP_OFFSET;
+            xQueueSend(task_param->queue_temperature_sts, &msg_temp_to_main, 0); /* Don't wait on queue*/
         }
 
         /* Compute elapsed time since last Heartbeat message */

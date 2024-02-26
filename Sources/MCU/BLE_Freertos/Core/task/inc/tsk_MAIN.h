@@ -58,7 +58,8 @@
 #include <queue.h>
 
 /******************** CONSTANTS OF MODULE ************************************/
-#define MAIN_HB_SEND_TIME_MS     200  /* Indicate when the task shall send a heartbeat */
+#define MAIN_HB_SEND_TIME_MS    200  /* Indicate when the task shall send a heartbeat */
+#define MAIN_TASK_LOOP_TIME_MS  50  
 
 /******************** MACROS DEFINITION **************************************/
 

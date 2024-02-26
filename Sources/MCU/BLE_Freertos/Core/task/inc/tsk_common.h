@@ -82,7 +82,7 @@ typedef enum
 {
     TC_HMI_STPT_TYPE_CTRL_MODE = 0,
     TC_HMI_STPT_TYPE_CLIM_MODE,
-    TC_HMI_STPT_TYPE_TEMPERATEURE,
+    TC_HMI_STPT_TYPE_TEMPERATURE,
     TC_HMI_STPT_TYPE_BLE_PAIRING
 }tskCommon_hmi_stpt_msg_type_e;
 

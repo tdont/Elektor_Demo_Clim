@@ -53,6 +53,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <YACSGL.h>
 #include <YACSWL.h>
@@ -213,11 +214,11 @@ void vHMITS_validate_edit(tskCommon_hmi_stpt_msg_t* const msg_setpt,
     }
 
     /* Configure message to be send using provided buffer */
-    msg_setpt->header.msg_type = TC_HMI_STPT_TYPE_TEMPERATEURE;
+    msg_setpt->header.msg_type = TC_HMI_STPT_TYPE_TEMPERATURE;
     msg_setpt->payload.temperature.val = HMI_TS_setpoint.new_temperature_stpt;
 
     /* Send new setpoint to main */
-    xQueueSend(queue_hmi_stpt, &msg_setpt, 2); 
+    xQueueSend(queue_hmi_stpt, msg_setpt, 2); 
 
     HMI_TS_status.edit_in_progress = false;
 }
@@ -275,6 +276,8 @@ void vHMITS_update(const void* const screen_cm_data, tskHMI_range_t* range)
     {
         temperature_to_display = (progress * HMI_SCREEN_TEMP_STPT_RANGE) /100;
         temperature_to_display += HMI_SCREEN_TEMP_STPT_MIN;
+
+        HMI_TS_setpoint.new_temperature_stpt = temperature_to_display;
     }
 
     /* Convert value to text */

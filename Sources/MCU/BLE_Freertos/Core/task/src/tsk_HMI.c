@@ -398,10 +398,10 @@ void HMI_handle_incomming_messages(tskHMI_TaskParam_t* task_param,
     /* Look for available message on Queues */
     queue_hdl_data_available = xQueueSelectFromSet(queue_set_hdl, timeout_ms / portTICK_RATE_MS);
 
-    /* Message From Autopilot */
+    /* Message From main feedback */
     if(queue_hdl_data_available == task_param->queue_hmi_feedback)
     {
-        /* Handle message from Autopilot */
+        /* Handle message from main feedback  */
         HMI_handle_incomming_messages_feedback(task_param);
     }
     else if(queue_hdl_data_available == task_param->queue_hmi_btn)
@@ -616,8 +616,6 @@ void HMI_btn_cb_enter_leaved_edit_mode(xQueueHandle queue_setpoint)
 
         hmi_screens[tsk_status.cur_screen_idx].metadata->validate_edit(&msg_setpoint, 
                                                                         queue_setpoint);
-
-        /* TODO Send new setpoint to main */
     }
     else if (       (tsk_status.edit_in_progress == false)
                 && (hmi_screens[tsk_status.cur_screen_idx].metadata->enter_edit != NULL)

@@ -208,7 +208,7 @@ void vHMICM_validate_edit(tskCommon_hmi_stpt_msg_t* const msg_setpt,
     msg_setpt->payload.ctrl_mode.val = HMI_CM_setpoint.new_ctrl_mode;
 
     /* Send new setpoint to main */
-    xQueueSend(queue_hmi_stpt, &msg_setpt, 2); 
+    xQueueSend(queue_hmi_stpt, msg_setpt, 2); 
 
     /* TODO remove this dummy code */
 

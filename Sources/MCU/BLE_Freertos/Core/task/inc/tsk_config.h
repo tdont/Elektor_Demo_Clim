@@ -74,7 +74,7 @@
 #define TSK_CNFG_STACKSIZE_HMI                      (368u)
 #define TSK_CNFG_STACKSIZE_TEMP                     (256u)
 #define TSK_CNFG_STACKSIZE_TOF                      (256u)
-#define TSK_CNFG_STACKSIZE_MAIN                     (256u)
+#define TSK_CNFG_STACKSIZE_MAIN                     (368u)
 
 /* Definition of MSGOBJ (1 is reserved for CMCH Task) */
 
@@ -87,14 +87,14 @@
 
 /* Definition of Queue name for debug */
 #define TSK_CNFG_QUEUE_NAME_HB_TO_WDG           "QueHbToWdg"
-#define TSK_CNFG_QUEUE_NAME_TO_HMI              "QueMainToHMI"
+#define TSK_CNFG_QUEUE_NAME_STS_TO_HMI              "QueMainToHMI"
 #define TSK_CNFG_QUEUE_NAME_BTN_TO_HMI          "QueBtnToHMI"
 #define TSK_CNFG_QUEUE_NAME_TOF_TO_HMI          "QueTofToHMI"
 #define TSK_CNFG_QUEUE_NAME_HMI_SETPOINT        "QueHMIStpt"
 #define TSK_CNFG_QUEUE_NAME_TEMP_TO_MAIN        "QueTempToMain"
 
 #define TSK_CNFG_QUEUE_LENGTH_HB_TO_WDG         (TSK_CNFG_MONITORED_ID_CNT * 3)
-#define TSK_CNFG_QUEUE_LENGTH_TO_HMI            (3u)
+#define TSK_CNFG_QUEUE_LENGTH_STS_TO_HMI        (3u)
 #define TSK_CNFG_QUEUE_LENGTH_BTN_TO_HMI        (2u)
 #define TSK_CNFG_QUEUE_LENGTH_TOF_TO_HMI        (1u)
 #define TSK_CNFG_QUEUE_LENGTH_HMI_SETPOINT      (2u)
@@ -107,8 +107,13 @@
 
 #define TSK_CNFG_MUTEX_NAME_I2C                 "mutI2C"
 
-#define TSK_CNFG_QUEUE_SET_HMI_SIZE            ( TSK_CNFG_QUEUE_LENGTH_TO_HMI \
+#define TSK_CNFG_QUEUE_SET_HMI_SIZE            ( TSK_CNFG_QUEUE_LENGTH_STS_TO_HMI \
                                                 + TSK_CNFG_QUEUE_LENGTH_BTN_TO_HMI \
+                                                + TSK_CNFG_QUEUE_LENGTH_TOF_TO_HMI \
+                                                + 1u)
+
+#define TSK_CNFG_QUEUE_SET_MAIN_SIZE            ( TSK_CNFG_QUEUE_LENGTH_HMI_SETPOINT \
+                                                + TSK_CNFG_QUEUE_LENGTH_TEMP_TO_MAIN \
                                                 + 1u)
 
 /******************** MACROS DEFINITION **************************************/

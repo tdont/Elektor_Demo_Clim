@@ -94,21 +94,26 @@ void MAIN_init(tskMAIN_TaskParam_t* task_param, tskHMI_msg_fdbk_msg_t* hmi_msg_f
 
 void MAIN_handle_incom_msgs(tskMAIN_TaskParam_t* task_param, 
                                 xQueueSetHandle queue_set_hdl, 
+                                tskHMI_msg_fdbk_msg_t* hmi_msg_feedback,
                                 uint16_t timeout_ms);
 
-void MAIN_handle_incom_msgs_hmi_setpoint(tskHMI_TaskParam_t* task_param, 
-                                const tskCommon_hmi_stpt_msg_t* const msg_hmi_stpt);
+void MAIN_handle_incom_msgs_hmi_setpoint(tskMAIN_TaskParam_t* task_param,
+                                tskHMI_msg_fdbk_msg_t* hmi_msg_feedback);
 
-void MAIN_handle_incom_msgs_hmi_setpoint_ctrlmode(tskHMI_TaskParam_t* task_param, 
+void MAIN_handle_incom_msgs_hmi_setpoint_ctrlmode(tskMAIN_TaskParam_t* task_param,
+                                tskHMI_msg_fdbk_msg_t* hmi_msg_feedback,
                                 const tskCommon_hmi_stpt_payload_cftrl_mode_t* const ctrlmode_pld);
 
-void MAIN_handle_incom_msgs_hmi_setpoint_clim_mode(tskHMI_TaskParam_t* task_param, 
+void MAIN_handle_incom_msgs_hmi_setpoint_clim_mode(tskMAIN_TaskParam_t* task_param,
+                                tskHMI_msg_fdbk_msg_t* hmi_msg_feedback,
                                 const tskCommon_hmi_stpt_payload_clim_mode_t* const clim_mode_pld);
 
-void MAIN_handle_incom_msgs_hmi_setpoint_temperature(tskHMI_TaskParam_t* task_param, 
+void MAIN_handle_incom_msgs_hmi_setpoint_temperature(tskMAIN_TaskParam_t* task_param,
+                                tskHMI_msg_fdbk_msg_t* hmi_msg_feedback,
                                 const tskCommon_hmi_stpt_payload_temperature_t* const temperature_pld);
 
-void MAIN_handle_incom_msgs_hmi_setpoint_pairing(tskHMI_TaskParam_t* task_param, 
+void MAIN_handle_incom_msgs_hmi_setpoint_pairing(tskMAIN_TaskParam_t* task_param,
+                                tskHMI_msg_fdbk_msg_t* hmi_msg_feedback,
                                 const tskCommon_hmi_stpt_payload_pairing_t* const pairing);
 
 void MAIN_send_hmi_feedback_clim_status(xQueueHandle queue_to_main, tskHMI_msg_fdbk_msg_t* hmi_msg_feedback);
@@ -123,6 +128,8 @@ void vMAIN_task(void *pv_param_task)
     uint16_t elapsed_time_ms = 0;
     tskCommon_Hb_t heartbeat = {0};
     portTickType hb_sending_tick = 0;
+    xQueueSetHandle queue_set_hdl = 0;
+    portBASE_TYPE ret = pdFAIL;
 
     /* Reserve area for messages to hmi */
     static tskHMI_msg_fdbk_msg_t hmi_feedback_msg = {0};
@@ -139,7 +146,27 @@ void vMAIN_task(void *pv_param_task)
 
     task_param = (tskMAIN_TaskParam_t*) pv_param_task;
 
-    /* Create Queue set */
+    /* Create queue set to listen from multiple queue */
+    queue_set_hdl = xQueueCreateSet(TSK_CNFG_QUEUE_SET_MAIN_SIZE);
+    /* Check for an error */
+    if (queue_set_hdl == 0)
+    {
+        /* Enter error loop */
+        vTskCommon_ErrorLoop();
+    }
+    /* Add queue to queue set */
+    ret = xQueueAddToSet(task_param->queue_hmi_setpoint, queue_set_hdl);
+    if (ret != pdPASS)
+    {
+        /* Enter error loop */
+        vTskCommon_ErrorLoop();
+    }
+    ret = xQueueAddToSet(task_param->queue_temperature_sensor, queue_set_hdl);
+    if (ret != pdPASS)
+    {
+        /* Enter error loop */
+        vTskCommon_ErrorLoop();
+    }
 
     /* TODO Wait HMI init completion */
     vTaskDelay(1000 / portTICK_RATE_MS);
@@ -149,10 +176,25 @@ void vMAIN_task(void *pv_param_task)
 
     while (1) /* Task loop */
     {
-        /* TODO handle incomming messages */
-    	vTaskDelay(50/portTICK_RATE_MS);
+        /* Compute remaining time before feeding the watchdog */
+        elapsed_time_ms = (xTaskGetTickCount() - hb_sending_tick) * portTICK_RATE_MS;
 
-        /* TODO handle incomming message and transition to the SM */
+        /* If there is enough time */
+        if (elapsed_time_ms <= MAIN_HB_SEND_TIME_MS)
+        {
+            /* Handle incomming messages */
+            if ((MAIN_HB_SEND_TIME_MS - elapsed_time_ms) > MAIN_TASK_LOOP_TIME_MS)
+            {
+                /* Delay before feeding the watchdog is greater than the desired task loop duration */
+                MAIN_handle_incom_msgs(task_param, queue_set_hdl, &hmi_feedback_msg, MAIN_TASK_LOOP_TIME_MS);
+            }
+            else
+            {
+                /* Delay before feeding the watchdog is lower than the desired task loop duration, only wait message for the remaining amount of time */
+                MAIN_handle_incom_msgs(task_param, queue_set_hdl, &hmi_feedback_msg,
+                                                (MAIN_HB_SEND_TIME_MS - elapsed_time_ms));
+            }
+        }
 
         /* Compute elapsed time since last Heartbeat message */
         elapsed_time_ms = (xTaskGetTickCount() - hb_sending_tick) * portTICK_RATE_MS;
@@ -194,27 +236,85 @@ void MAIN_init(tskMAIN_TaskParam_t* task_param, tskHMI_msg_fdbk_msg_t* hmi_msg_f
 
 void MAIN_handle_incom_msgs(tskMAIN_TaskParam_t* task_param, 
                                         xQueueSetHandle queue_set_hdl, 
+                                        tskHMI_msg_fdbk_msg_t* hmi_msg_feedback,
                                         uint16_t timeout_ms)
 {
+    xQueueSetMemberHandle queue_hdl_data_available;
+    /* Check parameters */
+    if (task_param == NULL)
+    {
+        /* Error null pointer */
+        return;
+    }
+    if (queue_set_hdl == NULL)
+    {
+        /* Error null pointer */
+        return;
+    }
 
+    /* Look for available message on Queues */
+    queue_hdl_data_available = xQueueSelectFromSet(queue_set_hdl, timeout_ms / portTICK_RATE_MS);
+
+    /* HMI Setpoint messages */
+    if(queue_hdl_data_available == task_param->queue_hmi_setpoint)
+    {
+        MAIN_handle_incom_msgs_hmi_setpoint(task_param, hmi_msg_feedback);
+    }
+    else if (queue_hdl_data_available == task_param->queue_temperature_sensor)
+    {
+        /* TODO handle temperature */
+    }
 }
 
-void MAIN_handle_incom_msgs_hmi_setpoint(tskHMI_TaskParam_t* task_param, 
-                                const tskCommon_hmi_stpt_msg_t* const msg_hmi_stpt)
+void MAIN_handle_incom_msgs_hmi_setpoint(tskMAIN_TaskParam_t* task_param,
+                                tskHMI_msg_fdbk_msg_t* hmi_msg_feedback)
 {
     if(task_param == NULL)
     {
         return;
     }
-    if(msg_hmi_stpt == NULL)
-    {
-        return;
-    }
 
-    
+    portBASE_TYPE ret = 0;
+    static tskCommon_hmi_stpt_msg_t msg_hmi_stpt = {0};
+
+    /* Retrieve message from queue */
+    ret = xQueueReceive(task_param->queue_hmi_setpoint, (void*) &msg_hmi_stpt, 0);
+
+    /* If message was well received */
+    if(ret == pdPASS)
+    {
+        /* Dispatch message */
+        switch (msg_hmi_stpt.header.msg_type)
+        {
+            case TC_HMI_STPT_TYPE_CTRL_MODE:
+                MAIN_handle_incom_msgs_hmi_setpoint_ctrlmode(task_param, 
+                                                    hmi_msg_feedback,
+                                                    &(msg_hmi_stpt.payload.ctrl_mode));
+                break;
+            case TC_HMI_STPT_TYPE_CLIM_MODE:
+                MAIN_handle_incom_msgs_hmi_setpoint_clim_mode(task_param, 
+                                                    hmi_msg_feedback,
+                                                    &(msg_hmi_stpt.payload.clim_mode));
+                break;
+            case TC_HMI_STPT_TYPE_TEMPERATURE:
+                MAIN_handle_incom_msgs_hmi_setpoint_temperature(task_param, 
+                                                    hmi_msg_feedback,
+                                                    &(msg_hmi_stpt.payload.temperature));
+                break;
+            case TC_HMI_STPT_TYPE_BLE_PAIRING:
+                MAIN_handle_incom_msgs_hmi_setpoint_pairing(task_param, 
+                                                    hmi_msg_feedback,
+                                                    &(msg_hmi_stpt.payload.pairing));
+                break;
+            default:
+                /* Drop messages */
+                break;
+        }
+    }
 }
 
-void MAIN_handle_incom_msgs_hmi_setpoint_ctrlmode(tskHMI_TaskParam_t* task_param, 
+void MAIN_handle_incom_msgs_hmi_setpoint_ctrlmode(tskMAIN_TaskParam_t* task_param,
+                                tskHMI_msg_fdbk_msg_t* hmi_msg_feedback,
                                 const tskCommon_hmi_stpt_payload_cftrl_mode_t* const ctrlmode_pld)
 {
     if(task_param == NULL)
@@ -225,9 +325,16 @@ void MAIN_handle_incom_msgs_hmi_setpoint_ctrlmode(tskHMI_TaskParam_t* task_param
     {
         return;
     }
+
+    /* Save control mode */
+    main_system_status.ctrl_mode = ctrlmode_pld->val;
+
+    /* Provide feedback to HMI */
+    MAIN_send_hmi_feedback_ctrl_mode(task_param->queue_hmi_feedback, hmi_msg_feedback);
 }
 
-void MAIN_handle_incom_msgs_hmi_setpoint_clim_mode(tskHMI_TaskParam_t* task_param, 
+void MAIN_handle_incom_msgs_hmi_setpoint_clim_mode(tskMAIN_TaskParam_t* task_param,
+                                tskHMI_msg_fdbk_msg_t* hmi_msg_feedback,
                                 const tskCommon_hmi_stpt_payload_clim_mode_t* const clim_mode_pld)
 {
     if(task_param == NULL)
@@ -238,8 +345,21 @@ void MAIN_handle_incom_msgs_hmi_setpoint_clim_mode(tskHMI_TaskParam_t* task_para
     {
         return;
     }
+
+    /* Reject setpoint if not in manual mode */
+    if(main_system_status.ctrl_mode != TC_BLE_MODE_MANUAL)
+    {
+        return;
+    }
+
+    /* Save Clim mode */
+    main_system_status.clim_status.clim_mode = clim_mode_pld->val;
+
+    /* Provide feedback to HMI */
+    MAIN_send_hmi_feedback_clim_status(task_param->queue_hmi_feedback, hmi_msg_feedback);
 }
-void MAIN_handle_incom_msgs_hmi_setpoint_temperature(tskHMI_TaskParam_t* task_param, 
+void MAIN_handle_incom_msgs_hmi_setpoint_temperature(tskMAIN_TaskParam_t* task_param,
+                                tskHMI_msg_fdbk_msg_t* hmi_msg_feedback,
                                 const tskCommon_hmi_stpt_payload_temperature_t* const temperature_pld)
 {
     if(task_param == NULL)
@@ -250,12 +370,27 @@ void MAIN_handle_incom_msgs_hmi_setpoint_temperature(tskHMI_TaskParam_t* task_pa
     {
         return;
     }
+    
+    /* Reject setpoint if not in manual mode */
+    if(main_system_status.ctrl_mode != TC_BLE_MODE_MANUAL)
+    {
+        return;
+    }
+
+    /* Save temperature setpoint */
+    main_system_status.clim_status.temperature_stpt = temperature_pld->val;
+
+    /* Provide feedback to HMI */
+    MAIN_send_hmi_feedback_clim_status(task_param->queue_hmi_feedback, hmi_msg_feedback);
 }
 
-void MAIN_handle_incom_msgs_hmi_setpoint_pairing(tskHMI_TaskParam_t* task_param, 
+void MAIN_handle_incom_msgs_hmi_setpoint_pairing(tskMAIN_TaskParam_t* task_param,
+                                tskHMI_msg_fdbk_msg_t* hmi_msg_feedback,
                                 const tskCommon_hmi_stpt_payload_pairing_t* const pairing)
 {
     /* TODO handle pairing mode */
+
+    MAIN_send_hmi_feedback_ble_status(task_param->queue_hmi_feedback, hmi_msg_feedback);
     return;
 }
 
@@ -299,6 +434,15 @@ void MAIN_send_hmi_feedback_ble_status(xQueueHandle queue_to_main, tskHMI_msg_fd
 
 void MAIN_send_hmi_feedback_ctrl_mode(xQueueHandle queue_to_main, tskHMI_msg_fdbk_msg_t* hmi_msg_feedback)
 {
+    if(queue_to_main == NULL)
+    {
+        return;
+    }
+    if(hmi_msg_feedback == NULL)
+    {
+        return;
+    }
+
     hmi_msg_feedback->header.fdbk_id = HMI_MSG_FDBK_ID_CTRL_MODE;
     hmi_msg_feedback->payload.control_mode.ctrl_mode = main_system_status.ctrl_mode;
 
@@ -306,7 +450,16 @@ void MAIN_send_hmi_feedback_ctrl_mode(xQueueHandle queue_to_main, tskHMI_msg_fdb
 }
 
 void MAIN_send_hmi_feedback_temperature(xQueueHandle queue_to_main, tskHMI_msg_fdbk_msg_t* hmi_msg_feedback)
-{
+{    
+    if(queue_to_main == NULL)
+    {
+        return;
+    }
+    if(hmi_msg_feedback == NULL)
+    {
+        return;
+    }
+
     hmi_msg_feedback->header.fdbk_id = HMI_MSG_FDBK_ID_TEMP;
     hmi_msg_feedback->payload.temperature.temperature = main_system_status.ambient_temperature;
 
