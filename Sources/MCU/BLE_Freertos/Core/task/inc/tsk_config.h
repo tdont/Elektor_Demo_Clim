@@ -77,7 +77,7 @@
 #define TSK_CNFG_STACKSIZE_TEMP                     (256u)
 #define TSK_CNFG_STACKSIZE_TOF                      (256u)
 #define TSK_CNFG_STACKSIZE_MAIN                     (368u)
-#define TSK_CNFG_STACKSIZE_IRATL                    (256u)
+#define TSK_CNFG_STACKSIZE_IRATL                    (368u) /* Big call stack for sirc encoding */
 
 /* Definition of MSGOBJ (1 is reserved for CMCH Task) */
 

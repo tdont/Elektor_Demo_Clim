@@ -62,6 +62,8 @@
 #include "tsk_MAIN.h"
 #include "tsk_common.h"
 #include "tsk_config.h"
+#include "ir_common.h"
+#include "sirc_encode.h"
 
 /******************** CONSTANTS OF MODULE ************************************/
 
@@ -79,6 +81,8 @@ typedef struct
 void IRATL_handle_incomming_message(xQueueHandle queue,
                             tskIRATL_last_setpoint_received_t* const last_setpoint_received, 
                             uint16_t timeout_ms);
+
+void IRATL_evaluate_sending_over_IR(const tskIRATL_last_setpoint_received_t* const setpoint);
 /******************** API FUNCTIONS ******************************************/
 void vIRATL_task(void *pv_param_task)
 {
@@ -102,7 +106,7 @@ void vIRATL_task(void *pv_param_task)
     task_param = (tskIRATL_TaskParam_t*) pv_param_task;
 
     /* Init IR timer */
-
+    SIRC_Encode_Init();
 
     while (1) /* Task loop */
     {
@@ -119,6 +123,7 @@ void vIRATL_task(void *pv_param_task)
         }
 
         /* Evaluate sending of message to IR (avoid sending too many IR signals) */
+        IRATL_evaluate_sending_over_IR(&last_setpoint_received);
 
         /* Compute elapsed time since last Heartbeat message */
         elapsed_time_ms = (xTaskGetTickCount() - hb_sending_tick) * portTICK_RATE_MS;
@@ -158,6 +163,17 @@ void IRATL_handle_incomming_message(xQueueHandle queue,
 
         /* Save the time when the last message was received */
         last_setpoint_received->last_rcvd_msg_tick = xTaskGetTickCount();
+    }
+}
+
+void IRATL_evaluate_sending_over_IR(const tskIRATL_last_setpoint_received_t* const setpoint)
+{
+    static portTickType last_sending_tick = 0;
+
+    if(((xTaskGetTickCount() - last_sending_tick) * portTICK_RATE_MS) > IRATL_DELAY_PRIOR_TO_SEND_MS)
+    {
+        SIRC_Encode_SendFrame(0, 0);
+        last_sending_tick = xTaskGetTickCount();
     }
 }
 
