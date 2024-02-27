@@ -95,8 +95,6 @@ void Error_Handler(void);
 #define QSPI_BK_SCK_GPIO_Port GPIOA
 #define CS_DISP_Pin GPIO_PIN_0
 #define CS_DISP_GPIO_Port GPIOH
-#define GPIO_SELECT2_Pin GPIO_PIN_1
-#define GPIO_SELECT2_GPIO_Port GPIOH
 #define DRDY_Pin GPIO_PIN_1
 #define DRDY_GPIO_Port GPIOE
 #define INT1_Pin GPIO_PIN_2

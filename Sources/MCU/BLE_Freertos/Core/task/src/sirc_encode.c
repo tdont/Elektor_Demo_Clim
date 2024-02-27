@@ -22,6 +22,8 @@
 #include "sirc_encode.h"
 #include "ir_common.h"
 
+#include <stm32wb5mm_dk.h>
+
 /* Private_Defines -----------------------------------------------------------*/
 #define  SIRC_HIGH_STATE_NB_SYMBOL     ((uint8_t)3)        /* Nb high state symbol definition*/
 #define  SIRC_LOW_STATE_NB_SYMBOL      ((uint8_t)2)        /* Nb low state symbol definition*/
@@ -397,6 +399,9 @@ void SIRC_Encode_SendFrame(uint8_t SIRC_Address, uint8_t SIRC_Instruction)
   assert_param(IS_SIRC_ADDRESS_IN_RANGE(SIRC_Address));
   assert_param(IS_SIRC_INSTRUCTION_IN_RANGE(SIRC_Instruction));
 
+  /* Power ON LED */
+  HAL_GPIO_WritePin(GPIOH, GPIO_PIN_1, GPIO_PIN_SET);
+
   /* Generate a binary format of the message */
   SIRCFrameBinaryFormat = SIRC_BinFrameGeneration(SIRC_Address, SIRC_Instruction);
 
@@ -484,6 +489,9 @@ void SIRC_Encode_SignalGenerate(void)
 
     /* TIM Disable */
     __HAL_TIM_DISABLE(&TimHandleLF);
+
+    /* Power OFF LED */
+    HAL_GPIO_WritePin(GPIOH, GPIO_PIN_1, GPIO_PIN_RESET);
   }
 }
 
