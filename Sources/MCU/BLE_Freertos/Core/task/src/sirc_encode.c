@@ -35,12 +35,12 @@
 #define  SIRC_BIT_FORMAT_MASK          ((uint16_t)1)       /* Bit mask definition*/
 #define  SIRC_COUNTER_LIMIT            ((uint16_t)75)      /* main frame + idle time */
 #define  SIRC_IS_RUNNING               ((uint8_t)4)        /* SIRC Protocol number */
-#define  SIRC_HEADERS                  ((uint16_t)0x0F)    /* SIRC Start pulse */
+#define  SIRC_HEADERS                  ((uint16_t)0xFF)    /* SIRC Start pulse */
 #define  SIRC_HEADERS_LENGTH           ((uint8_t)5)        /* Length of the headers */
-#define  SIRC_CODED_FRAME_TABLE_LENGTH ((uint8_t)2)        /* Coded frame table number of uint32_t word  */
+#define  SIRC_CODED_FRAME_TABLE_LENGTH ((uint8_t)50)        /* Coded frame table number of uint32_t word  */
 
-#define IR_ENC_HPERIOD_SIRC     ((uint32_t)1600)        /*!< SIRC Encoder modulation frequency base period */
-#define IR_ENC_LPERIOD_SIRC     ((uint32_t)38400)       /*!< SIRC Encoder pulse base period */
+#define IR_ENC_HPERIOD_SIRC     ((uint32_t)850)        /*!< SIRC Encoder modulation frequency base period 38Khz */
+#define IR_ENC_LPERIOD_SIRC     ((uint32_t)13200)       /*!< SIRC Encoder pulse base period 400 µs*/
 
 /* Private_Function_Protoypes -----------------------------------------------*/
 static void SIRC_PulseWidthModulationConvert(uint32_t bindata, uint8_t bindatalength);
@@ -70,191 +70,6 @@ uint8_t SIRCCodedFrameLastWordLength = 0;
 uint8_t SIRCNbWord = 0;
 
 /* Exported_Functions --------------------------------------------------------*/
-
-// /**
-//   * @brief  RCR receiver demo exec.
-//   * @param  None
-//   * @retval None
-//   */
-// void Menu_SIRC_Encode_Func(void)
-// {
-//   MenuKeyStroke_t pressedkey = NOKEY;
-//   uint8_t index = 0;
-
-//   while (Menu_ReadKey() != NOKEY)
-//   {}
-//   /* Clear the LCD */
-//   BSP_LCD_Clear(LCD_COLOR_WHITE);
-
-//   /* Draw Header */
-//   BSP_LCD_SetFont(&Font24);
-//   /* Set the LCD Back Color */
-//   BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
-//   /* Set the LCD Text Color */
-//   BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
-//   BSP_LCD_DisplayStringAtLine(0, (uint8_t*)" SIRC Transmitter ");
-
-//   /* Draw footer */
-//   BSP_LCD_SetFont(&Font16);
-//   /* Set the LCD Back Color */
-//   BSP_LCD_SetBackColor(LCD_COLOR_CYAN);
-//   /* Set the LCD Text Color */
-//   BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
-//   BSP_LCD_DisplayStringAtLine(13, (uint8_t *)MESSAGE1);
-//   /* Set the LCD Back Color */
-//   BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
-//   BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
-//   BSP_LCD_DisplayStringAtLine(14, (uint8_t *)MESSAGE2);
-//   BSP_LCD_SetFont(&Font20);
-
-//   SIRC_Encode_Init();
-
-//   AddressIndex = 0;
-//   InstructionIndex = 0;
-//   RFDemoStatus = SIRC_ENC;
-
-//   pressedkey = Menu_ReadKey();
-
-//   /* Set the LCD Back Color */
-//   BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
-//   /* Set the LCD Text Color */
-//   BSP_LCD_SetTextColor(LCD_COLOR_RED);
-//   /* Display the device address message */
-//   BSP_LCD_DisplayStringAtLine(6, (uint8_t*)aSIRCCommands[InstructionIndex]);
-//   /* Set the LCD Text Color */
-//   BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
-//   /* Display the device address message */
-//   BSP_LCD_DisplayStringAtLine(7, (uint8_t*)aSIRCDevices[AddressIndex]);
-
-//   /* Set the LCD Text Color */
-//   BSP_LCD_SetTextColor(LCD_COLOR_RED);
-
-//   while (pressedkey != KEY)
-//   {
-//     pressedkey = Menu_ReadKey();
-//     /* To switch between device address and command */
-//     if ((pressedkey == DOWN) || (pressedkey == UP))
-//     {
-//       /* Set the LCD Text Color */
-//       BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
-
-//       if (index == 0)
-//       {
-//         index = 1;
-//         /* Display the device address message */
-//         BSP_LCD_DisplayStringAtLine(6, (uint8_t*)aSIRCCommands[InstructionIndex]);
-//         /* Set the LCD Text Color */
-//         BSP_LCD_SetTextColor(LCD_COLOR_RED);
-//         /* Display the device address message */
-//         BSP_LCD_DisplayStringAtLine(7, (uint8_t*)aSIRCDevices[AddressIndex]);
-//       }
-//       else
-//       {
-//         index = 0;
-//         /* Display the device address message */
-//         BSP_LCD_DisplayStringAtLine(7, (uint8_t*)aSIRCDevices[AddressIndex]);
-//         /* Set the LCD Text Color */
-//         BSP_LCD_SetTextColor(LCD_COLOR_RED);
-//         /* Display the device address message */
-//         BSP_LCD_DisplayStringAtLine(6, (uint8_t*)aSIRCCommands[InstructionIndex]);
-//       }
-//     }
-//     if (index == 0)
-//     {
-//       /* Commands index decrement */
-//       if (pressedkey == LEFT)
-//       {
-//         if (InstructionIndex == 0)
-//         {
-//           InstructionIndex = 127;
-//         }
-//         else
-//         {
-//           InstructionIndex--;
-//         }
-//         /* Set the LCD Text Color */
-//         BSP_LCD_SetTextColor(LCD_COLOR_RED);
-//         /* Display the device address message */
-//         BSP_LCD_DisplayStringAtLine(6, (uint8_t*)aSIRCCommands[InstructionIndex]);
-//       }
-//       /* Commands index increment */
-//       if (pressedkey == RIGHT)
-//       {
-//         if (InstructionIndex == 127)
-//         {
-//           InstructionIndex = 0;
-//         }
-//         else
-//         {
-//           InstructionIndex++;
-//         }
-//         /* Set the LCD Text Color */
-//         BSP_LCD_SetTextColor(LCD_COLOR_RED);
-//         BSP_LCD_DisplayStringAtLine(6, (uint8_t*)aSIRCCommands[InstructionIndex]);
-//       }
-//     }
-//     else
-//     {
-//       /* Decrement the address device index */
-//       if (pressedkey == LEFT)
-//       {
-//         if (AddressIndex == 0)
-//         {
-//           AddressIndex = 15;
-//         }
-//         else
-//         {
-//           AddressIndex--;
-//         }
-//         /* Set the LCD Text Color */
-//         BSP_LCD_SetTextColor(LCD_COLOR_RED);
-//         /* Display the device address message */
-//         BSP_LCD_DisplayStringAtLine(7, (uint8_t*)aSIRCDevices[AddressIndex]);
-//       }
-//       /* Increment the address device index increment */
-//       if (pressedkey == RIGHT)
-//       {
-//         if (AddressIndex == 15)
-//         {
-//           AddressIndex = 0;
-//         }
-//         else
-//         {
-//           AddressIndex++;
-//         }
-//         /* Set the LCD Text Color */
-//         BSP_LCD_SetTextColor(LCD_COLOR_RED);
-//         BSP_LCD_DisplayStringAtLine(7, (uint8_t*)aSIRCDevices[AddressIndex]);
-//       }
-//     }
-//     if (pressedkey == SEL)
-//     {
-//       BSP_LCD_ClearStringLine(6);
-
-//       /* Button is pressed */
-//       SIRC_Encode_SendFrame(AddressIndex, InstructionIndex);
-
-//       BSP_LCD_SetTextColor(LCD_COLOR_RED);
-//       BSP_LCD_DisplayStringAtLine(6, (uint8_t*)aSIRCCommands[InstructionIndex]);
-
-//       pressedkey = NOKEY;
-//     }
-//   }
-//   SIRC_Encode_DeInit();
-
-//   BSP_LCD_Clear(LCD_COLOR_WHITE);
-//   BSP_LCD_SetFont(&Font24);
-
-//   /* Enable the JoyStick interrupt */
-//   HAL_NVIC_EnableIRQ(LEFT_JOY_EXTI_IRQn);
-
-//   /* Exit the SIRC demo */
-//   RFDemoStatus = NONE;
-
-//   /* Display menu */
-//   Menu_DisplayMenu();
-// }
-
 /**
   * @brief DeInit Hardware (IPs used) for SIRC generation
   * @param None
@@ -279,6 +94,10 @@ void SIRC_Encode_Init(void)
   TIM_OC_InitTypeDef ch_config;
   GPIO_InitTypeDef gpio_init_struct;
 
+  //aSIRCFramePWForm[SIRC_CODED_FRAME_TABLE_LENGTH-1] = 0b0101010010100101010000111111111
+  //aSIRCFramePWForm[SIRC_CODED_FRAME_TABLE_LENGTH-1] = 0b0101000101000101010000111111111
+   // 0 => 10 in reverse order above 01
+   // 1 => 1000 in reverse order above 0001
   RFDemoStatus = SIRC_ENC;
 
   /* TIM16 clock enable */

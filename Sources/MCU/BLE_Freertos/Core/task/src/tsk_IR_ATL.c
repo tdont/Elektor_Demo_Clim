@@ -172,7 +172,7 @@ void IRATL_evaluate_sending_over_IR(const tskIRATL_last_setpoint_received_t* con
 
     if(((xTaskGetTickCount() - last_sending_tick) * portTICK_RATE_MS) > IRATL_DELAY_PRIOR_TO_SEND_MS)
     {
-        SIRC_Encode_SendFrame(0, 0);
+        SIRC_Encode_SendFrame(1, 5);
         last_sending_tick = xTaskGetTickCount();
     }
 }

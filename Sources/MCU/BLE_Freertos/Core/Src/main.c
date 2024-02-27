@@ -58,6 +58,8 @@
 #include "tsk_TOF.h"
 #include "tsk_IR_ATL.h"
 
+#include "ir_common.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
