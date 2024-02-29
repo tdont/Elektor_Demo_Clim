@@ -63,7 +63,7 @@
 #include "tsk_common.h"
 #include "tsk_config.h"
 #include "ir_common.h"
-#include "sirc_encode.h"
+#include "ir_atl_encode.h"
 
 /******************** CONSTANTS OF MODULE ************************************/
 
@@ -75,7 +75,9 @@ typedef struct
     tskMAIN_clim_stpt_to_IR_msg_t setpoint_msg;
     portTickType last_rcvd_msg_tick;
 }tskIRATL_last_setpoint_received_t;
+
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
+static uint8_t common_byte[IRATL_IR_FRAME_FIRST_BYTE_SIZE] = {0x14, 0x63, 0x00, 0x10, 0x10};
 
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
 void IRATL_handle_incomming_message(xQueueHandle queue,
@@ -172,7 +174,22 @@ void IRATL_evaluate_sending_over_IR(const tskIRATL_last_setpoint_received_t* con
 
     if(((xTaskGetTickCount() - last_sending_tick) * portTICK_RATE_MS) > IRATL_DELAY_PRIOR_TO_SEND_MS)
     {
-        SIRC_Encode_SendFrame(1, 5);
+        static IRATL_IR_frame_helper_t ir_frame_helper = {0};
+        static IRATL_IR_frame_t* const ir_frame = &(ir_frame_helper.frame);
+
+        /* Reset buffer */
+        memset(ir_frame_helper.raw_message, 0, sizeof(IRATL_IR_frame_helper_t));
+        
+        /* Build frame */
+        memcpy(&(ir_frame->header.common), common_byte, IRATL_IR_FRAME_FIRST_BYTE_SIZE);
+
+        ir_frame->header.on_off_toggler = IRATL_IR_FRAME_ONOFF_TOGGLER_ON;
+
+        ir_frame->payload.pld_on.checksum = 0xA5;
+
+        /* Send Frame */
+        IRATL_transmit_frame(ir_frame_helper.raw_message, sizeof (IRATL_IR_frame_t));
+
         last_sending_tick = xTaskGetTickCount();
     }
 }

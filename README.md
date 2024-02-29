@@ -29,11 +29,11 @@ Realised:
 - Main task receives ambient temperature
 - Main task provide feedback to HMI task
 - Capture and reverse engineering of the Atlantic IR remote protocol
+- IR task created
+- IR task generate bitstream to be send over IR
 
 Ongoing:
-- IR task retrieve setpoint
-- IR task 
-
+- Reverse the checksum needed at the end of an IR frame
 
 To be done:
 - BLE communication, but the BLE stack is up and running, needs to be configured

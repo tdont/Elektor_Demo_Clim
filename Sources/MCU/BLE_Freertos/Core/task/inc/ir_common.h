@@ -25,7 +25,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include <stdio.h>
-#include "sirc_encode.h"
+#include "ir_atl_encode.h"
 
 /** @addtogroup IR_REMOTE
   * @brief Infra-red remote control
