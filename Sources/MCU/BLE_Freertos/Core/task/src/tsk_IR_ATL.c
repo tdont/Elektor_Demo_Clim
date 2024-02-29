@@ -84,7 +84,7 @@ void IRATL_handle_incomming_message(xQueueHandle queue,
                             tskIRATL_last_setpoint_received_t* const last_setpoint_received, 
                             uint16_t timeout_ms);
 
-void IRATL_evaluate_sending_over_IR(const tskIRATL_last_setpoint_received_t* const setpoint);
+void IRATL_evaluate_sending_over_IR(tskIRATL_last_setpoint_received_t* const setpoint);
 /******************** API FUNCTIONS ******************************************/
 void vIRATL_task(void *pv_param_task)
 {
@@ -168,11 +168,21 @@ void IRATL_handle_incomming_message(xQueueHandle queue,
     }
 }
 
-void IRATL_evaluate_sending_over_IR(const tskIRATL_last_setpoint_received_t* const setpoint)
+void IRATL_evaluate_sending_over_IR(tskIRATL_last_setpoint_received_t* const setpoint)
 {
-    static portTickType last_sending_tick = 0;
+    /* Check parameters */
+    if(setpoint == NULL)
+    {
+        return;
+    }
 
-    if(((xTaskGetTickCount() - last_sending_tick) * portTICK_RATE_MS) > IRATL_DELAY_PRIOR_TO_SEND_MS)
+    if(setpoint->last_rcvd_msg_tick == 0)
+    {
+        /* No new setpoint, nothing to send */
+        return;
+    }
+
+    if(((xTaskGetTickCount() - setpoint->last_rcvd_msg_tick) * portTICK_RATE_MS) > IRATL_DELAY_PRIOR_TO_SEND_MS)
     {
         static IRATL_IR_frame_helper_t ir_frame_helper = {0};
         static IRATL_IR_frame_t* const ir_frame = &(ir_frame_helper.frame);
@@ -190,7 +200,8 @@ void IRATL_evaluate_sending_over_IR(const tskIRATL_last_setpoint_received_t* con
         /* Send Frame */
         IRATL_transmit_frame(ir_frame_helper.raw_message, sizeof (IRATL_IR_frame_t));
 
-        last_sending_tick = xTaskGetTickCount();
+        /* Indicate the setpoint was send over IR*/
+        setpoint->last_rcvd_msg_tick = 0;
     }
 }
 

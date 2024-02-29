@@ -84,7 +84,7 @@ typedef struct __attribute__((packed))
     uint8_t b7;
     uint8_t b8;
     uint8_t eco_mode;
-    uint8_t checksum
+    uint8_t checksum;
 }IRATL_IR_pld_ON_t;
 
 typedef union __attribute__((packed))

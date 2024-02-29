@@ -44,14 +44,7 @@
 #define IR_ENC_LPERIOD_SIRC     ((uint32_t)13200)       /*!< SIRC Encoder pulse base period 400 µs*/
 
 /* Private_Function_Protoypes -----------------------------------------------*/
-static void SIRC_PulseWidthModulationConvert(uint32_t bindata, uint8_t bindatalength);
-static void SIRC_Shift_Table(__IO uint32_t aTable[]);
-static void SIRC_AddHeaders(uint8_t headers);
-static void SIRC_AddStateFragment(uint8_t State, uint8_t freespace);
-static void SIRC_AddHeadersFragment(uint8_t headers, uint8_t freespace);
-static uint32_t SIRC_MSBToLSB_Data(uint32_t Data, uint8_t DataNbBits);
-static uint16_t SIRC_BinFrameGeneration(uint8_t SIRC_Address, uint8_t SIRC_Instruction);
-static void SIRC_Encode_DeInit(void);
+//static void SIRC_Encode_DeInit(void);
 
 /* Public_Variables ----------------------------------------------------------*/
 volatile uint32_t aSIRCFramePWForm[IRATL_PWFORM_MAX_SIZE_U32] = {0};
@@ -78,14 +71,14 @@ uint8_t SIRCNbWord = 0;
   * @param None
   * @retval None
   */
-static void SIRC_Encode_DeInit(void)
-{
-  HAL_TIM_OC_DeInit(&TimHandleLF);
-  HAL_TIM_OC_DeInit(&TimHandleHF);
-  HAL_GPIO_DeInit(GPIOB, GPIO_PIN_9);
-
-  RFDemoStatus = NONE;
-}
+//static void SIRC_Encode_DeInit(void)
+//{
+//  HAL_TIM_OC_DeInit(&TimHandleLF);
+//  HAL_TIM_OC_DeInit(&TimHandleHF);
+//  HAL_GPIO_DeInit(GPIOB, GPIO_PIN_9);
+//
+//  RFDemoStatus = NONE;
+//}
 
 /**
   * @brief Init Hardware (IPs used) for SIRC generation
@@ -95,12 +88,7 @@ static void SIRC_Encode_DeInit(void)
 void SIRC_Encode_Init(void)
 {
   TIM_OC_InitTypeDef ch_config;
-  GPIO_InitTypeDef gpio_init_struct;
 
-  //aSIRCFramePWForm[SIRC_CODED_FRAME_TABLE_LENGTH-1] = 0b0101010010100101010000111111111
-  //aSIRCFramePWForm[SIRC_CODED_FRAME_TABLE_LENGTH-1] = 0b0101000101000101010000111111111
-   // 0 => 10 in reverse order above 01
-   // 1 => 1000 in reverse order above 0001
   RFDemoStatus = SIRC_ENC;
 
   /* TIM16 clock enable */
@@ -115,14 +103,6 @@ void SIRC_Encode_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-
-  /*Configure GPIO pin : PB9 already performed by IOC generation */
-//  gpio_init_struct.Pin = GPIO_PIN_9;
-//  gpio_init_struct.Mode = GPIO_MODE_AF_PP;
-//  gpio_init_struct.Pull = GPIO_NOPULL;
-//  gpio_init_struct.Speed = GPIO_SPEED_FREQ_LOW;
-//  gpio_init_struct.Alternate = IR_GPIO_AF_TR;
-//  HAL_GPIO_Init(GPIOB, &gpio_init_struct);
 
   /* DeInit TIM17 */
   HAL_TIM_OC_DeInit(&TimHandleHF);
