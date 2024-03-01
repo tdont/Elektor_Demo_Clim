@@ -7,9 +7,9 @@ frame SoftwareArchitecture_democratic_clim{
 'Declare elements
     frame INPUT{
         component button
-        component touch_button
+        'component touch_button
         component tof
-        component temperature_sensor        
+        component temperature_sensor
         component RTC
         note top{
             TODO add RTC configuration and usage
@@ -76,7 +76,7 @@ frame SoftwareArchitecture_democratic_clim{
 'Relation between component
 
 button --> tsk_HMI
-touch_button --> tsk_HMI
+'touch_button --> tsk_HMI
 tsk_HMI --> OLED_SCREEN
 tsk_HMI --> hmi_setpoint
 
