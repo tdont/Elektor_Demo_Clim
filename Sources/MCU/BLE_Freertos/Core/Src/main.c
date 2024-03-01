@@ -355,7 +355,7 @@ static void vSetupOsExchangeObject(void)
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HMI_SETPOINT);
 
     /***********************************************************************************/
-    /* Create Queue for message to HMI transmission */
+    /* Create Queue for message to IR transmission */
     tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_TO_IR_ATL, sizeof(tskMAIN_clim_stpt_to_IR_msg_t));
     /* Check for an error */
     if (tmpQueueHandle == 0)
@@ -368,6 +368,21 @@ static void vSetupOsExchangeObject(void)
     param_MAIN.queue_to_ir = tmpQueueHandle;
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_TO_IR_ATL);
+
+    /***********************************************************************************/
+    /* Create Queue for message to ble transmission */
+    tmpQueueHandle = xQueueCreate(TSK_CNFG_QUEUE_LENGTH_BLE_FEEDBACK, sizeof(tskMAIN_BLE_feedback_msg_t));
+    /* Check for an error */
+    if (tmpQueueHandle == 0)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+    /* Store the value to tasks parameters */
+    param_BLE.queue_feedback_from_main = tmpQueueHandle;
+    param_MAIN.queue_ble_feedback = tmpQueueHandle;
+    /* Add queue to registry */
+    vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_BLE_FEEDBACK);
 
     /***********************************************************************************/
     /* Create Semaphore for delaying start of TEMP_sensor looping */
@@ -500,7 +515,7 @@ static void vStartTasks(void)
 
     /* BLE thread */
     ret = xTaskCreate(vBLE_task, (const char * const) TSK_CNFG_NAME_BLE,
-                        TSK_CNFG_STACKSIZE_BLE, &param_IRATL, TSK_CNFG_PRIORITY_BLE,
+                        TSK_CNFG_STACKSIZE_BLE, &param_BLE, TSK_CNFG_PRIORITY_BLE,
                         (xTaskHandle *) NULL);
 
     /* Check whether task was created */

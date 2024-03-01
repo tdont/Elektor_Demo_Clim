@@ -69,7 +69,7 @@
 typedef struct
 {
  xQueueHandle       queue_setpoint_to_main;
- xQueueHandle       queue_feedback_frpm_main;
+ xQueueHandle       queue_feedback_from_main;
  xQueueHandle       queue_hb_to_watchdog;
 }tskBLE_TaskParam_t;
 

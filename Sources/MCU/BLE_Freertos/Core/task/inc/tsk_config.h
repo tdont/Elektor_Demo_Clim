@@ -101,6 +101,7 @@
 #define TSK_CNFG_QUEUE_NAME_HMI_SETPOINT        "QueHMIStpt"
 #define TSK_CNFG_QUEUE_NAME_TEMP_TO_MAIN        "QueTempToMain"
 #define TSK_CNFG_QUEUE_NAME_TO_IR_ATL           "QueToIRATL"
+#define TSK_CNFG_QUEUE_NAME_BLE_FEEDBACK        "QueBleFeedback"
 
 #define TSK_CNFG_QUEUE_LENGTH_HB_TO_WDG         (TSK_CNFG_MONITORED_ID_CNT * 3)
 #define TSK_CNFG_QUEUE_LENGTH_STS_TO_HMI        (3u)
@@ -109,6 +110,7 @@
 #define TSK_CNFG_QUEUE_LENGTH_HMI_SETPOINT      (2u)
 #define TSK_CNFG_QUEUE_LENGTH_TEMP_TO_MAIN      (1u)
 #define TSK_CNFG_QUEUE_LENGTH_TO_IR_ATL         (3u)
+#define TSK_CNFG_QUEUE_LENGTH_BLE_FEEDBACK      (1u)
 
 #define TSK_CNFG_SEMA_NAME_START_TEMP_SNSR      "semaTempSnsr"
 #define TSK_CNFG_SEMA_NAME_INIT_TOF_SNSR        "semaTofSnsr"

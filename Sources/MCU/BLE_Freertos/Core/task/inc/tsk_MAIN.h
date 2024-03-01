@@ -72,6 +72,7 @@ typedef struct
     xQueueHandle queue_hb_to_watchdog;
     xQueueHandle queue_hmi_setpoint;
     xQueueHandle queue_hmi_feedback;
+    xQueueHandle queue_ble_feedback;
     xQueueHandle queue_to_ir;
     xQueueHandle queue_temperature_sensor;
  }tskMAIN_TaskParam_t;
@@ -83,6 +84,10 @@ typedef struct __attribute__((packed))
     float                   temperature_stpt;
 }tskMAIN_clim_stpt_to_IR_msg_t;
 
+typedef struct __attribute__((packed))
+{
+    float                   ambient_temperature;
+}tskMAIN_BLE_feedback_msg_t;
 
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 

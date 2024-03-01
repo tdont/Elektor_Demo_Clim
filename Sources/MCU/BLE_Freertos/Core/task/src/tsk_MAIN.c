@@ -308,6 +308,11 @@ void MAIN_handle_incom_msgs_temperature(tskMAIN_TaskParam_t* task_param,
 
         /* Send feedback to HMI */
         MAIN_send_hmi_feedback_temperature(task_param->queue_hmi_feedback, hmi_msg_feedback);
+
+        /* TODO create dedicated function  : Forward temperature to BLE */
+        static tskMAIN_BLE_feedback_msg_t ble_feedback_msg = {0};
+        ble_feedback_msg.ambient_temperature = main_system_status.ambient_temperature;
+        xQueueSend(task_param->queue_ble_feedback, &ble_feedback_msg, 1);
     }
 
     return;

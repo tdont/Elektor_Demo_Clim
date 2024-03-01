@@ -79,7 +79,9 @@ typedef struct
 /******************** GLOBAL VARIABLES OF MODULE *****************************/
 
 /******************** LOCAL FUNCTION PROTOTYPE *******************************/
-
+void BLE_handle_incomming_message(xQueueHandle queue, 
+                            const BLE_env_Context_t* const ble_context,
+                            uint16_t timeout_ms);
 /******************** API FUNCTIONS ******************************************/
 void vBLE_task(void *pv_param_task)
 {
@@ -147,10 +149,13 @@ void vBLE_task(void *pv_param_task)
         /* Compute elapsed time since last Heartbeat message */
         elapsed_time_ms = (xTaskGetTickCount() - hb_sending_tick) * portTICK_RATE_MS;
 
-        /* TODO handle incomming messages from main */
-        if(elapsed_time_ms < BLE_HB_SEND_TIME_MS)
+        /* Handle incomming messages from main */
+        if(elapsed_time_ms <= BLE_HB_SEND_TIME_MS)
         {
-            vTaskDelay((BLE_HB_SEND_TIME_MS - elapsed_time_ms) / portTICK_RATE_MS);
+            BLE_handle_incomming_message(task_param->queue_feedback_from_main, 
+                            &ble_env_context,
+                            BLE_HB_SEND_TIME_MS - elapsed_time_ms);
+
         }
 
         /* Compute elapsed time since last Heartbeat message */
@@ -170,8 +175,37 @@ void vBLE_task(void *pv_param_task)
         }
     }
 }
-/******************** LOCAL FUNCTIONS ****************************************/
 
+/******************** LOCAL FUNCTIONS ****************************************/
+void BLE_handle_incomming_message(xQueueHandle queue, 
+                            const BLE_env_Context_t* const ble_env_context,
+                            uint16_t timeout_ms)
+{
+    int8_t ambient_temperature = 0;
+
+    static tskMAIN_BLE_feedback_msg_t feedback_msg = {0};
+    portBASE_TYPE ret = 0;
+
+    /* Retrieve message from queue */
+    ret = xQueueReceive(queue, 
+                        (void*) &feedback_msg,
+                        (timeout_ms / portTICK_RATE_MS));
+
+    if(ret == pdPASS)
+    {
+        /* Extract temperature */
+        ambient_temperature = (int8_t) feedback_msg.ambient_temperature;
+
+        /* Update temperature characteristics */
+        aci_gatt_update_char_value(ble_env_context->EnvSensingSvcHdle,
+                                    ble_env_context->TemperatureCharHdle,
+                                    0,
+                                    1,
+                                    (uint8_t*)&ambient_temperature);
+    }
+
+    return;
+}
 /**\} */
 /**\} */
 
