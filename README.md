@@ -210,4 +210,4 @@ The software is build using STM32Cube IDE V1.13.2
 ## 8) Ressources usage
 In release mode, the project is pretty lightweight (could be less heavy by reimplementing HAL library with less genericity), there won't be any problem to implement BLE and add new features
 
-![Ressources usage](./readme_pictures/ressourceusage.png)
+![Ressources usage](./readme_pictures/RessourceUsage.png)
