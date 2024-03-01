@@ -3,7 +3,11 @@
 ## 1) Project description
 This project aims to create a democratic tools for controlling airconditionning temperature in open spaces with multiples coworkers. 
 
-The system allows two mode :
+It requires :
+- one STM32WB5MM-DK board
+- An Atlantic Fujitsu air conditionner
+
+The system allows two controlling mode :
 - **Manual**, to be used if someone is just using the space part time, override all setting (similar to an IR remote)
 - **BLE**, allows up to 8 smartphone to be connected and to choose a temperature. 
 -- The temperature is selected based on the temperature choosen and the smartphone near the device (accomodate for people going in or out of the space) 
@@ -13,6 +17,8 @@ The system allows two mode :
 It is also using STM32 BLE chips in order to particiape to the STM32 contest held at Elektor magazine
 
 Only the IR part of the project is specific to the Atlantic air conditionning system. The rest can be reused at will for any similar project or to recreate an IR remote.
+
+
 
 ### 1.1) Future evolution
 
