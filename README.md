@@ -1,5 +1,8 @@
 # Elektor Democratic Clim
 
+A short demo can be watched on [Youtube](https://www.youtube.com/watch?v=WQHUb8H9jmk)
+
+
 ## 1) Project description
 This project aims to create a democratic tools for controlling airconditionning temperature in open spaces with multiples coworkers. 
 
@@ -46,11 +49,10 @@ Realised:
 - IR task generate bitstream to be send over IR
 - Compute of the IR checksum, and append it to the end of the frame (to be tested with air conditionning system)
 - BLE stack up and running showing as Demo_clim device
-
+- BLE task, only providing ambient temperature
 
 Ongoing:
 - Documentation describbing the IR protocol
-- BLE task, only providing ambient temperature
 
 To be done:
 - Add a configurable grace delay to let task finish their init (by letting the watchdog task feed the HW even if all task are not 'alive')

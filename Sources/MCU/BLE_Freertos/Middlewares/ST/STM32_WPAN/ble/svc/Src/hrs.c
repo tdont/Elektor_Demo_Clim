@@ -207,11 +207,11 @@ static tBleStatus Update_Char_BodySensorLocation(HRS_BodySensorLocation_t *pBody
 {
   tBleStatus return_value = BLE_STATUS_SUCCESS;
 
-  return_value = aci_gatt_update_char_value(HRS_Context.HeartRateSvcHdle,
-                                            HRS_Context.BodySensorLocationCharHdle,
-                                            0, /* charValOffset */
-                                            1, /* charValueLen */
-                                            (uint8_t *) pBodySensorLocationValue);
+  // return_value = aci_gatt_update_char_value(HRS_Context.HeartRateSvcHdle,
+  //                                           HRS_Context.BodySensorLocationCharHdle,
+  //                                           0, /* charValOffset */
+  //                                           1, /* charValueLen */
+  //                                           (uint8_t *) pBodySensorLocationValue);
   return return_value;
 }/* end Update_Char_BodySensorLocation() */
 #endif
@@ -465,12 +465,7 @@ void HRS_Init(void)
   //                       hciCmdResult);
   // }
 
-  // static int8_t temp_val_demo = 24;
-  // hciCmdResult =  aci_gatt_update_char_value(HRS_Context.HeartRateSvcHdle, 
-  //                             HRS_Context.HeartRatemeasurementCharHdle, 
-  //                             0, 
-  //                             1, 
-  //                             &temp_val_demo);
+ 
 
 #if (BLE_CFG_HRS_BODY_SENSOR_LOCATION_CHAR != 0)
 //   /**
