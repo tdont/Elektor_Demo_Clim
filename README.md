@@ -176,6 +176,10 @@ Using the previously  mentionned algo: 15 - 0 - 3 - 7 - 0 - 1 - 0 - 0 - 0 - 2 =>
 See the tsk_IR_ATL.c file for the protocol implementation
 See the ir_atl_encode.c for the IR frame transmission using the IR_out of the STM32
 
+### 5.3) Final results
+
+Here is an example comparing a frame recorded from an standard Atlantic IR remote, and below the results generated dynamically (after setting value into the HMI)
+![Reverse_complete](./readme_pictures/Reverse_final.png)
 
 
 ## 6) Documentation 

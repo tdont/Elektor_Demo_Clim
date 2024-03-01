@@ -61,6 +61,8 @@
 #define IRATL_IR_FRAME_START_OF_IR_FRAME_WITH_FIRST_BIT_PULSE   (0x21FF)
 #define IRATL_IR_FRAME_START_LENGTH_IN_BIT                      (13u)
 
+#define IRATL_CHECKSUM_MSB_START_VALUE              (15u)
+#define IRATL_CHECKSUM_LSB_START_VALUE              (1u)
 
 typedef struct __attribute__((packed))
 {

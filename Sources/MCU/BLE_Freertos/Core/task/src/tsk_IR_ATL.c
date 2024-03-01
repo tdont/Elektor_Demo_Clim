@@ -85,6 +85,9 @@ void IRATL_handle_incomming_message(xQueueHandle queue,
                             uint16_t timeout_ms);
 
 void IRATL_evaluate_sending_over_IR(tskIRATL_last_setpoint_received_t* const setpoint);
+
+void IRATL_build_and_send_off_message(IRATL_IR_frame_helper_t* const ir_frame_helper, tskIRATL_last_setpoint_received_t* const setpoint);
+void IRATL_build_and_send_on_message(IRATL_IR_frame_helper_t* const ir_frame_helper, tskIRATL_last_setpoint_received_t* const setpoint);
 /******************** API FUNCTIONS ******************************************/
 void vIRATL_task(void *pv_param_task)
 {
@@ -190,19 +193,151 @@ void IRATL_evaluate_sending_over_IR(tskIRATL_last_setpoint_received_t* const set
         /* Reset buffer */
         memset(ir_frame_helper.raw_message, 0, sizeof(IRATL_IR_frame_helper_t));
         
-        /* Build frame */
+        /* Build frame, apply common accross all messages header part of IR frame */
         memcpy(&(ir_frame->header.common), common_byte, IRATL_IR_FRAME_FIRST_BYTE_SIZE);
 
-        ir_frame->header.on_off_toggler = IRATL_IR_FRAME_ONOFF_TOGGLER_ON;
-
-        ir_frame->payload.pld_on.checksum = 0xA5;
-
-        /* Send Frame */
-        IRATL_transmit_frame(ir_frame_helper.raw_message, sizeof (IRATL_IR_frame_t));
+        /* Select message builder based on clim mode */
+        switch(setpoint->setpoint_msg.clim_mode)
+        {
+            case TC_CLIM_MODE_OFF:
+                IRATL_build_and_send_off_message(&ir_frame_helper, setpoint);
+                break;
+            case TC_CLIM_MODE_HEAT: /* FALLTHROUGH */
+            case TC_CLIM_MODE_COLD:
+                IRATL_build_and_send_on_message(&ir_frame_helper, setpoint);
+                break;
+            default:
+                /* Drop setpoint */
+                break;
+        }
 
         /* Indicate the setpoint was send over IR*/
         setpoint->last_rcvd_msg_tick = 0;
     }
+
+    return;
+}
+
+void IRATL_build_and_send_off_message(IRATL_IR_frame_helper_t* const ir_frame_helper, 
+                                        tskIRATL_last_setpoint_received_t* const setpoint)
+{
+    /* Check parameters */
+    if(setpoint == NULL)
+    {
+        return;
+    }
+
+    IRATL_IR_frame_t* const ir_frame = &(ir_frame_helper->frame);
+
+    /* Indicate it is an OFF frame */
+    ir_frame->header.on_off_toggler = IRATL_IR_FRAME_ONOFF_TOGGLER_OFF;
+
+    /* Set the OFF cheksum */
+    ir_frame->payload.pld_off.checksum = IRATL_IR_FRAME_OFF_PLD_CHECKSUM;
+
+    /* Send Frame */
+    IRATL_transmit_frame(ir_frame_helper->raw_message, sizeof (IRATL_IR_header_t) + sizeof(IRATL_IR_pld_OFF_t));
+
+    return;
+}
+
+void IRATL_build_and_send_on_message(IRATL_IR_frame_helper_t* const ir_frame_helper, 
+                                        tskIRATL_last_setpoint_received_t* const setpoint)
+{
+    /* Check parameters */
+    if(setpoint == NULL)
+    {
+        return;
+    }
+
+    IRATL_IR_frame_t* const ir_frame = &(ir_frame_helper->frame);
+
+    /* Indicate it is an ON frame */
+    ir_frame->header.on_off_toggler = IRATL_IR_FRAME_ONOFF_TOGGLER_ON;
+
+    /* Set standard byte at the default value */
+    ir_frame->payload.pld_on.b1 = IRATL_IR_FRAME_ON_PLD_B1;
+    ir_frame->payload.pld_on.b2 = IRATL_IR_FRAME_ON_PLD_B2;
+    ir_frame->payload.pld_on.b6 = IRATL_IR_FRAME_ON_PLD_B6_B7_B8;
+    ir_frame->payload.pld_on.b7 = IRATL_IR_FRAME_ON_PLD_B6_B7_B8;
+    ir_frame->payload.pld_on.b8 = IRATL_IR_FRAME_ON_PLD_B6_B7_B8;
+    
+    /* Set swing mode to vertical with low fan (This point is never a concern in the office) */
+    ir_frame->payload.pld_on.swing_mode = IRATL_IR_FRAME_ON_PLD_SWNGMODE_FAN_LOW | IRATL_IR_FRAME_ON_PLD_SWNGMODE_SWNG_VER;
+
+    /* Set heat mode */
+    switch(setpoint->setpoint_msg.clim_mode)
+    {
+        case TC_CLIM_MODE_HEAT:
+            ir_frame->payload.pld_on.heat_mode = IRATL_IR_FRAME_ON_PLD_HEATMODE_HEAT;
+            break;
+        case TC_CLIM_MODE_COLD:
+            ir_frame->payload.pld_on.heat_mode = IRATL_IR_FRAME_ON_PLD_HEATMODE_COOL;
+            break;
+        case TC_CLIM_MODE_OFF:
+        default:
+            /* Unhandled case, fallback to auto mode */
+            ir_frame->payload.pld_on.heat_mode = IRATL_IR_FRAME_ON_PLD_HEATMODE_AUTO;
+            break;
+    }
+
+    /* Set temperature setpoint */
+        uint8_t temperature_u = (uint8_t) setpoint->setpoint_msg.temperature_stpt;
+        /* Check range */
+        if(temperature_u < IRATL_IR_FRAME_TEMP_MINIMAL_VALUE_DEG_C)
+        {
+            temperature_u = IRATL_IR_FRAME_TEMP_MINIMAL_VALUE_DEG_C;
+        }
+        if(temperature_u > IRATL_IR_FRAME_TEMP_MAXIMAL_VALUE_DEG_C)
+        {
+            temperature_u = IRATL_IR_FRAME_TEMP_MAXIMAL_VALUE_DEG_C;
+        }
+
+        /* Remove offset */
+        temperature_u = temperature_u - IRATL_IR_FRAME_TEMP_OFFSET_VALUE;
+
+        /* Store value */
+        ir_frame->payload.pld_on.temperature = (temperature_u << 4);
+
+    /* Set eco mode (never in eco mode so far */
+    ir_frame->payload.pld_on.eco_mode = IRATL_IR_FRAME_ON_PLD_ECOMODE_NOM;
+
+    /* TODO use RTC information to switch into eco mode during the night, or perform a shutdown */
+
+    /* Compute checksum */
+    uint8_t msb_sum = ((ir_frame->payload.pld_on.b1 & 0b11110000) >> 4) 
+                        + ((ir_frame->payload.pld_on.b2 & 0b11110000) >> 4)
+                        + ((ir_frame->payload.pld_on.temperature & 0b11110000) >> 4)
+                        + ((ir_frame->payload.pld_on.heat_mode & 0b11110000) >> 4)
+                        + ((ir_frame->payload.pld_on.swing_mode & 0b11110000) >> 4)
+                        + ((ir_frame->payload.pld_on.b6 & 0b11110000) >> 4)
+                        + ((ir_frame->payload.pld_on.b7 & 0b11110000) >> 4)
+                        + ((ir_frame->payload.pld_on.b8 & 0b11110000) >> 4)
+                        + ((ir_frame->payload.pld_on.eco_mode & 0b11110000) >> 4);
+
+    uint8_t msb_checksum = IRATL_CHECKSUM_MSB_START_VALUE - (msb_sum % 16);
+    ir_frame->payload.pld_on.checksum = msb_checksum << 4;
+
+    int8_t lsb_sum = IRATL_CHECKSUM_LSB_START_VALUE                         /* Do not consider b1 for this checksum */
+                        - (ir_frame->payload.pld_on.temperature & 0b1111)
+                        - (ir_frame->payload.pld_on.heat_mode & 0b1111)
+                        - (ir_frame->payload.pld_on.swing_mode & 0b1111)
+                        - (ir_frame->payload.pld_on.b2 & 0b1111) 
+                        - (ir_frame->payload.pld_on.b6 & 0b1111)
+                        - (ir_frame->payload.pld_on.b7 & 0b1111)
+                        - (ir_frame->payload.pld_on.b8 & 0b1111)
+                        - (ir_frame->payload.pld_on.eco_mode & 0b1111);
+    
+    while( lsb_sum < 0)
+    {
+        lsb_sum += 15;
+    }
+    ir_frame->payload.pld_on.checksum |= (lsb_sum & 0b1111);
+
+    /* Send Frame */
+    IRATL_transmit_frame(ir_frame_helper->raw_message, sizeof (IRATL_IR_frame_t));
+    
+    return;
 }
 
 /**\} */
