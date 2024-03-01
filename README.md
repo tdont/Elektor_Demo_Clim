@@ -45,14 +45,16 @@ Realised:
 - IR task created
 - IR task generate bitstream to be send over IR
 - Compute of the IR checksum, and append it to the end of the frame (to be tested with air conditionning system)
+- BLE stack up and running showing as Demo_clim device
+
 
 Ongoing:
 - Documentation describbing the IR protocol
+- BLE task, only providing ambient temperature
 
 To be done:
 - Make the I2C HAL driver more RTOS compliant by adding a build-in mutex avoiding concurent access
 - Fix Font in order to support the ° character
-- BLE communication, but the BLE stack is up and running, needs to be configured
 - Smartphone application
 - Hardware watchdog configuration and feeding
 

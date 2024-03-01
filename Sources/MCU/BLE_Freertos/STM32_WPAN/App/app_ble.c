@@ -222,7 +222,7 @@ PLACE_IN_SECTION("TAG_OTA_START") const uint32_t MagicKeywordAddress = (uint32_t
 static BleApplicationContext_t BleApplicationContext;
 static uint16_t AdvIntervalMin, AdvIntervalMax;
 
-static const char a_LocalName[] = {AD_TYPE_COMPLETE_LOCAL_NAME ,'E','l','e','k','t'};
+static const char a_LocalName[] = {AD_TYPE_COMPLETE_LOCAL_NAME ,'D','e','m','o','_','c','l','i','m'};
 uint8_t a_ManufData[14] = {sizeof(a_ManufData)-1,
                            AD_TYPE_MANUFACTURER_SPECIFIC_DATA,
                            0x01 /*SKD version */,
@@ -415,7 +415,8 @@ void APP_BLE_Init(void)
    */
   BleApplicationContext.BleApplicationContext_legacy.advtServUUID[0] = AD_TYPE_16_BIT_SERV_UUID;
   BleApplicationContext.BleApplicationContext_legacy.advtServUUIDlen = 1;
-  Add_Advertisment_Service_UUID(HEART_RATE_SERVICE_UUID);
+  //Add_Advertisment_Service_UUID(HEART_RATE_SERVICE_UUID);
+  Add_Advertisment_Service_UUID(ENVIRONMENTAL_SENSING_SERVICE_UUID);
 
   /* Initialize intervals for reconnexion without intervals update */
   AdvIntervalMin = CFG_FAST_CONN_ADV_INTERVAL_MIN;
