@@ -53,6 +53,7 @@ Ongoing:
 - BLE task, only providing ambient temperature
 
 To be done:
+- Add a configurable grace delay to let task finish their init (by letting the watchdog task feed the HW even if all task are not 'alive')
 - Make the I2C HAL driver more RTOS compliant by adding a build-in mutex avoiding concurent access
 - Fix Font in order to support the ° character
 - Smartphone application

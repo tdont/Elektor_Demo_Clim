@@ -57,6 +57,7 @@
 #include "tsk_MAIN.h"
 #include "tsk_TOF.h"
 #include "tsk_IR_ATL.h"
+#include "tsk_BLE.h"
 
 #include "ir_common.h"
 
@@ -86,6 +87,7 @@ static tskTEMP_TaskParam_t          param_TEMP = {0};
 static tskTOF_TaskParam_t           param_TOF = {0};
 static tskMAIN_TaskParam_t          param_MAIN = {0};
 static tskIRATL_TaskParam_t         param_IRATL = {0};
+static tskBLE_TaskParam_t           param_BLE = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -289,6 +291,7 @@ static void vSetupOsExchangeObject(void)
     param_TOF.queue_hb_to_watchdog = tmpQueueHandle;
     param_MAIN.queue_hb_to_watchdog = tmpQueueHandle;
     param_IRATL.queue_hb_to_watchdog = tmpQueueHandle;
+    param_BLE.queue_hb_to_watchdog = tmpQueueHandle;
     /* Add queue to registry */
     vQueueAddToRegistry(tmpQueueHandle, TSK_CNFG_QUEUE_NAME_HB_TO_WDG);
 
@@ -486,6 +489,18 @@ static void vStartTasks(void)
     /* IR_ATL thread */
     ret = xTaskCreate(vIRATL_task, (const char * const) TSK_CNFG_NAME_IR_ATL,
                         TSK_CNFG_STACKSIZE_IRATL, &param_IRATL, TSK_CNFG_PRIORITY_IRATL,
+                        (xTaskHandle *) NULL);
+
+    /* Check whether task was created */
+    if (ret != pdTRUE)
+    {
+        /* Reset the board, try to allow a fix from bootloader */
+        NVIC_SystemReset();
+    }
+
+    /* BLE thread */
+    ret = xTaskCreate(vBLE_task, (const char * const) TSK_CNFG_NAME_BLE,
+                        TSK_CNFG_STACKSIZE_BLE, &param_IRATL, TSK_CNFG_PRIORITY_BLE,
                         (xTaskHandle *) NULL);
 
     /* Check whether task was created */

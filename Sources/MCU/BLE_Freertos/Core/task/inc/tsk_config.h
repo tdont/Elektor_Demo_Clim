@@ -59,8 +59,9 @@
 #define TSK_CNFG_MONITORED_ID_TOF                  (2u)
 #define TSK_CNFG_MONITORED_ID_MAIN                 (3u)
 #define TSK_CNFG_MONITORED_ID_IRATL                (4u)
+#define TSK_CNFG_MONITORED_ID_BLE                  (5u)
 /* Must be at the end of the task id list (indicates the number of task monitored) */
-#define TSK_CNFG_MONITORED_ID_CNT                   (TSK_CNFG_MONITORED_ID_IRATL + 1)
+#define TSK_CNFG_MONITORED_ID_CNT                   (TSK_CNFG_MONITORED_ID_BLE + 1)
 
 /* Definition of tasks priority */
 #define TSK_CNFG_PRIORITY_HMI                   	(configMAX_PRIORITIES - 3)
@@ -68,6 +69,7 @@
 #define TSK_CNFG_PRIORITY_TOF                       (configMAX_PRIORITIES - 4)
 #define TSK_CNFG_PRIORITY_MAIN                      (configMAX_PRIORITIES - 2)
 #define TSK_CNFG_PRIORITY_IRATL                     (configMAX_PRIORITIES - 4)
+#define TSK_CNFG_PRIORITY_BLE                       (configMAX_PRIORITIES - 3)
 #define TSK_CNFG_PRIORITY_WDGT                      (2u)     /* Lowest priority task of monitored task */
 #define TSK_CNFG_PRIORITY_NON_MONITORED             (1u)     /* Non monitored task (if any) Just above idle task */
 
@@ -77,7 +79,8 @@
 #define TSK_CNFG_STACKSIZE_TEMP                     (256u)
 #define TSK_CNFG_STACKSIZE_TOF                      (256u)
 #define TSK_CNFG_STACKSIZE_MAIN                     (368u)
-#define TSK_CNFG_STACKSIZE_IRATL                    (368u) /* Big call stack for sirc encoding */
+#define TSK_CNFG_STACKSIZE_IRATL                    (368u) 
+#define TSK_CNFG_STACKSIZE_BLE                      (368u)
 
 /* Definition of MSGOBJ (1 is reserved for CMCH Task) */
 
@@ -87,7 +90,8 @@
 #define TSK_CNFG_NAME_TEMP                      "TaskTEMP"
 #define TSK_CNFG_NAME_TOF                       "TaskTOF"
 #define TSK_CNFG_NAME_MAIN                      "TaskMAIN"
-#define TSK_CNFG_NAME_IR_ATL                    "taskIRATL"
+#define TSK_CNFG_NAME_IR_ATL                    "TaskIRATL"
+#define TSK_CNFG_NAME_BLE                       "TaskBLE"
 
 /* Definition of Queue name for debug */
 #define TSK_CNFG_QUEUE_NAME_HB_TO_WDG           "QueHbToWdg"
