@@ -44,7 +44,7 @@
 #define IR_ENC_LPERIOD_SIRC     ((uint32_t)13200)       /*!< SIRC Encoder pulse base period 400 µs*/
 
 /* Private_Function_Protoypes -----------------------------------------------*/
-//static void SIRC_Encode_DeInit(void);
+
 
 /* Public_Variables ----------------------------------------------------------*/
 volatile uint32_t aSIRCFramePWForm[IRATL_PWFORM_MAX_SIZE_U32] = {0};
@@ -189,42 +189,6 @@ void SIRC_Encode_Init(void)
   __HAL_TIM_DISABLE(&TimHandleLF);
 }
 
-// /**
-//   * @brief Generate and Send the SIRC frame.
-//   * @param SIRC_Address : the SIRC Device destination
-//   * @param SIRC_Instruction : the SIRC command instruction
-//   * @retval  None
-//   */
-// void SIRC_Encode_SendFrame(uint8_t SIRC_Address, uint8_t SIRC_Instruction)
-// {
-//   /* Check the parameters */
-//   assert_param(IS_SIRC_ADDRESS_IN_RANGE(SIRC_Address));
-//   assert_param(IS_SIRC_INSTRUCTION_IN_RANGE(SIRC_Instruction));
-
-//   /* Power ON LED */
-//   HAL_GPIO_WritePin(GPIOH, GPIO_PIN_1, GPIO_PIN_SET);
-
-//   /* Generate a binary format of the message */
-//   SIRCFrameBinaryFormat = SIRC_BinFrameGeneration(SIRC_Address, SIRC_Instruction);
-
-//   /* Transform address and data from MSB first to LSB first */
-//   SIRCFrameBinaryFormat = SIRC_MSBToLSB_Data(SIRCFrameBinaryFormat, SIRC_MAIN_FRAME_LENGTH);
-
-//   /* Convert the frame binary format to a PulseWidthModulation format of the message */
-//   SIRC_PulseWidthModulationConvert(SIRCFrameBinaryFormat, SIRC_MAIN_FRAME_LENGTH);
-
-//   /* Add the headers to SIRC_FramePulseWidthFormat Table */
-//   SIRC_AddHeaders(SIRC_HEADERS);
-
-//   /* Set the Send operation Ready flag to indicate that the frame is ready to be sent */
-//   SIRCSendOpReadyFlag = SET;
-
-//   /* Reset the counter to ensure accurate timing */
-//   __HAL_TIM_SET_COUNTER( &TimHandleLF, 0);
-
-//   /* TIM IT Enable */
-//   HAL_TIM_Base_Start_IT(&TimHandleLF);
-// }
 
 /**
   * @brief Send by hardware PulseWidthModulation Format SIRC Frame.

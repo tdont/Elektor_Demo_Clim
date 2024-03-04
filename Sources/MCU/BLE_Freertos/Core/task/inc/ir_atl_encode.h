@@ -58,8 +58,8 @@
 
 #define IRATL_IR_FRAME_BIT_CODING_MAX_PWFORM_SIZE   (4u)  /* At maxwimum 4 bits is needed to code a data bit */
 
-#define IRATL_IR_FRAME_START_OF_IR_FRAME_WITH_FIRST_BIT_PULSE   (0x21FF)
-#define IRATL_IR_FRAME_START_LENGTH_IN_BIT                      (13u)
+#define IRATL_IR_FRAME_START_OF_IR_FRAME_WITH_FIRST_BIT_PULSE   (0x10FF)
+#define IRATL_IR_FRAME_START_LENGTH_IN_BIT                      (12u)
 
 #define IRATL_CHECKSUM_MSB_START_VALUE              (15u)
 #define IRATL_CHECKSUM_LSB_START_VALUE              (1u)

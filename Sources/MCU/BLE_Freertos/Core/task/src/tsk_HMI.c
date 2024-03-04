@@ -80,7 +80,7 @@
 
 
 /******************** CONSTANTS OF MODULE ************************************/
-#define TSK_HMI_REBOUNT_LIMIT_TIME_MS   700
+#define TSK_HMI_REBOUNT_LIMIT_TIME_MS   300
 
 /******************** MACROS DEFINITION **************************************/
 
@@ -555,7 +555,7 @@ void HMI_btn_cb_go_to_next_screen(void)
     static TickType_t last_tick = 0;
     TickType_t current_tick = xTaskGetTickCount();
 
-    uint32_t elapsed_time_ms = (last_tick - current_tick) * portTICK_RATE_MS;
+    uint32_t elapsed_time_ms = (current_tick - last_tick) * portTICK_RATE_MS;
 
     /* Filter rebound */
     if(elapsed_time_ms < TSK_HMI_REBOUNT_LIMIT_TIME_MS )
