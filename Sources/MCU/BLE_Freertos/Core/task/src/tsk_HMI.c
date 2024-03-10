@@ -61,6 +61,7 @@
 #include <HMI_screen_heating_mode.h>
 #include <HMI_screen_temperature_setpoint.h>
 #include <HMI_screen_ble_pairing.h>
+#include <HMI_screen_about.h>
 #include <queue.h>
 #include <task.h>
 
@@ -100,6 +101,7 @@ static HMI_screen_main_t                screen_main_data = {0};
 static HMI_screen_ctrl_mode_sts_t       screen_ctrl_mode_data = {0};
 static HMI_screen_heating_mode_sts_t    screen_heating_mode_data = {0};
 static HMI_screen_temp_stpt_sts_t       screen_temp_stpt_data = {0};
+static HMI_screen_about_t               screen_about_data = {0};
 
 static YACSWL_widget_t hmi_root_widget={0};
 static YACSWL_label_t  hmi_screen_label = {0};
@@ -125,6 +127,10 @@ static tsk_HMI_screen_t hmi_screens[] = {   /* First screen in array is the main
                                             ,{
                                                 (void*)&screen_temp_stpt_data,
                                                 &hmi_temperature_stpt_metadata
+                                            }
+                                            ,{
+                                                (void*)&screen_about_data,
+                                                &hmi_about_metadata
                                             }
                                         };
 
