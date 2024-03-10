@@ -94,10 +94,10 @@ As it is difficult to finaly adjust value without any help, a progress bar appea
 
 
 
-## 5) Atlantic Air conditionning IR remote protocol reverse engineering
+## 4) Atlantic Air conditionning IR remote protocol reverse engineering
 
-### 5.1) How to reverse an unknown protocol (and also invisible)
-#### 5.1.1) How to spy on the signals ?
+### 4.1) How to reverse an unknown protocol (and also invisible)
+#### 4.1.1) How to spy on the signals ?
  There are two possibilities:
  - Either procure a IR receiver pcb board. These are handy board with just 3 pin (Gnd, 3.3V or 5V and output). Theses boards cost 5€ (some even have a LED glowing when an IR frame is received) and can be connected directly to a microcontrolleur. They remove the carrier signal of the IR signal and only leaves the data. You can hook the output directly to a logic analyser. The only drawback, with this module is that you won't be able to observe the carrier signal and will have no clue for the carrier frequency.
  - Otherwise you can tear down the packaging (in the i.Fixit way using screwdriver and spugler) of your IR remote and hook the logic analyser directly on the Anode and Kathode of the IR LED. The drawback is you will have to mentally remove the carrier.
@@ -115,7 +115,7 @@ The resulting picture showing the dev environnement for this project (quite mess
 
  Once everything is setup, it's time to capture
  
- #### 5.1.2) How to capture ?
+ #### 4.1.2) How to capture ?
 
 Use either GNU PulseView/Sigrock or in my case DSView to capture signals. 
 The important thing to find a sweet spot between frequency of acquisition and buffer size. Cheap logic analyser tend to limit greatly the buffer memory. This can be circumvent with triggers. however it can be difficult if we have no idea of what the signals might look like.
@@ -126,7 +126,7 @@ Then for the Frequency I chose 10Mhz but using Nyquist-Shannon Theorem and knowi
 
 Then it's only a matter of syncrhonisation between starting the capture and pushing button on the remote.
 
-##### 5.1.3) What to capture
+##### 4.1.3) What to capture
 
 In order to discover the protocol, we need a lot of information. 
 
@@ -151,7 +151,7 @@ You can also see that the last byte changed (circled in blue) of value but in a 
 Well you might say: "Hey, in your case it is simple, you can see the bytes value directly. But if I try on my side, I only have pulses and no clue how to read them" (and if y try by hand, you surely will make mistakes)
 
 
-##### 5.1.4) I have nice Waveform (more like pulses), now what ?
+##### 4.1.4) I have nice Waveform (more like pulses), now what ?
 
 The important tools embedded with logic analyser is their ability to decode protocol so we don't need to do it manually.
 In the case of DSview and Sigrock, this is done with decoders written in Python.
@@ -167,7 +167,7 @@ a 1 is coded by applying carrier for 400 us then 1 ms of pause.
 Here is an example of an acquisition : 
 ![Acquisition](./readme_pictures/Captured_signal.jpg)
 
-##### 5.1.5) How to recompute the checksum ?
+##### 4.1.5) How to recompute the checksum ?
 
 In some cases you simply can't as the algorithm is too complex. If such case occurs, you can always store a table with all precalculated frames (if you only need very few command, you managed to record previously). However this method can be time costly and will consume lots of ROM memory
 
@@ -183,24 +183,24 @@ Example :
 Computing the MSB value between the two red portion (the left part is the header of the IR frame and is already protected by a checksum (0xFE): It's purpose is to indicate to the air conditionner that it will be ON with some setpoint value following)
 Using the previously  mentionned algo: 15 - 0 - 3 - 7 - 0 - 1 - 0 - 0 - 0 - 2 => 2
 
-### 5.2) How to reimplement the protocol ?
+### 4.2) How to reimplement the protocol ?
 
 See the tsk_IR_ATL.c file for the protocol implementation
 See the ir_atl_encode.c for the IR frame transmission using the IR_out of the STM32
 
-### 5.3) Final results
+### 4.3) Final results
 
 Here is an example comparing a frame recorded from an standard Atlantic IR remote, and below the results generated dynamically (after setting value into the HMI)
 ![Reverse_complete](./readme_pictures/Reverse_final.png)
 
 
-## 6) Documentation 
-### 6.1) Software Architecture
+## 5) Documentation 
+### 5.1) Software Architecture
 
 The software architecture is available at [./Documentation/Technical_Documentation/Architecture/_Architecture.md](./Documentation/Technical_Documentation/Architecture/_Architecture.md)
 Diagrams are in plantuml and are available at ./Documentation/Technical_Documentation/Architecture/
 
-### 6.2) Project folders
+### 5.2) Project folders
 **Documentation/Datasheets** folder provides all documentation provided by STM32
 **Documentation/Internal_Documentation** folder provides source template and coding rules
 **Documentation/Reverse_atlantic_protocol** folder provides captures and interpretation of Atlantic IR transmission
@@ -214,12 +214,12 @@ Diagrams are in plantuml and are available at ./Documentation/Technical_Document
 
 **Bin/MCU** folder will provide an .hex file containing the last compiled version of the software 
 
-## 7) Quick developping start guide
+## 6) Quick developping start guide
 
 The software is build using STM32Cube IDE V1.13.2
 **/!\\** Some file generated by cubeIDE and are modified afteward (spi.c and i2c.c) in order to remove MX_SPI1_Init and MX_I2C3_Init (If these file are not generated then HAL_spi and HAL_i2c file are not imported into the project)
 
-## 8) Ressources usage
+## 7) Ressources usage
 In release mode, the project is pretty lightweight: 
 - FLASH : 76.9 KB => 15%
 - RAM1  : 37.45KB => 19.5%

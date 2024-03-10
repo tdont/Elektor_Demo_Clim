@@ -297,7 +297,7 @@ void IRATL_build_and_send_on_message(IRATL_IR_frame_helper_t* const ir_frame_hel
         temperature_u = temperature_u - IRATL_IR_FRAME_TEMP_OFFSET_VALUE;
 
         /* Store value */
-        ir_frame->payload.pld_on.temperature = (temperature_u << 4);
+        ir_frame->payload.pld_on.temperature = (temperature_u << 4) | 1;
 
     /* Set eco mode (never in eco mode so far */
     ir_frame->payload.pld_on.eco_mode = IRATL_IR_FRAME_ON_PLD_ECOMODE_NOM;
