@@ -70,7 +70,8 @@ typedef enum
     HMI_MSG_FDBK_ID_TEMP = 0,
     HMI_MSG_FDBK_ID_BLE,
     HMI_MSG_FDBK_ID_CLIM,
-    HMI_MSG_FDBK_ID_CTRL_MODE
+    HMI_MSG_FDBK_ID_CTRL_MODE,
+    HMI_MSG_FDBK_ID_ABOUT
 }tskHMI_msg_fdbk_id_e;
 
 
@@ -117,6 +118,13 @@ typedef struct __attribute__((packed))
     uint8_t                 nb_device_connected;
 }tskHMI_msg_fdbk_pld_ble_sts_t;
 
+typedef struct __attribute__((packed))
+{
+    char        letter;
+    uint8_t     major;
+    uint8_t     minor;
+    uint8_t     release;
+}tskHMI_msg_fdbk_pld_about_t;
 
 typedef union __attribute__((packed))
 {
@@ -125,6 +133,7 @@ typedef union __attribute__((packed))
     tskHMI_msg_fdbk_pld_ctrl_t          control_mode;
     tskHMI_msg_fdbk_pld_ble_sts_t       ble_status;
     tskHMI_msg_fdbk_pld_clim_sts_t      clim_status;
+    tskHMI_msg_fdbk_pld_about_t         about;
 
 }tskHMI_msg_fdbk_payload_t;
 

@@ -61,6 +61,7 @@
 #include "tsk_HMI.h"
 #include "tsk_TEMP.h"
 #include "tsk_IR_ATL.h"
+#include "version.h"
 
 /******************** CONSTANTS OF MODULE ************************************/
 
@@ -126,6 +127,8 @@ void MAIN_send_hmi_feedback_clim_status(xQueueHandle queue_to_hmi, tskHMI_msg_fd
 void MAIN_send_hmi_feedback_ble_status(xQueueHandle queue_to_hmi, tskHMI_msg_fdbk_msg_t* hmi_msg_feedback);
 void MAIN_send_hmi_feedback_ctrl_mode(xQueueHandle queue_to_hmi, tskHMI_msg_fdbk_msg_t* hmi_msg_feedback);
 void MAIN_send_hmi_feedback_temperature(xQueueHandle queue_to_hmi, tskHMI_msg_fdbk_msg_t* hmi_msg_feedback);
+void MAIN_send_hmi_feedback_about(xQueueHandle queue_to_hmi, tskHMI_msg_fdbk_msg_t* hmi_msg_feedback);
+
 
 void MAIN_send_IR_setpoint(xQueueHandle queue_to_IR);
 
@@ -181,6 +184,9 @@ void vMAIN_task(void *pv_param_task)
 
     /* Init status */
     MAIN_init(task_param, &hmi_feedback_msg);
+
+    /* Send version to HMI */
+    MAIN_send_hmi_feedback_about(task_param->queue_hmi_feedback, &hmi_feedback_msg);
 
     while (1) /* Task loop */
     {
@@ -523,6 +529,27 @@ void MAIN_send_hmi_feedback_temperature(xQueueHandle queue_to_hmi, tskHMI_msg_fd
 
     hmi_msg_feedback->header.fdbk_id = HMI_MSG_FDBK_ID_TEMP;
     hmi_msg_feedback->payload.temperature.temperature = main_system_status.ambient_temperature;
+
+    xQueueSend(queue_to_hmi, hmi_msg_feedback, 1);
+}
+
+void MAIN_send_hmi_feedback_about(xQueueHandle queue_to_hmi, tskHMI_msg_fdbk_msg_t* hmi_msg_feedback)
+{
+    if(queue_to_hmi == NULL)
+    {
+        return;
+    }
+    if(hmi_msg_feedback == NULL)
+    {
+        return;
+    }
+
+    hmi_msg_feedback->header.fdbk_id = HMI_MSG_FDBK_ID_ABOUT;
+    hmi_msg_feedback->payload.about.letter = version[VERSION_OFFSET_LETTER];
+    hmi_msg_feedback->payload.about.major = version[VERSION_OFFSET_MAJOR];
+    hmi_msg_feedback->payload.about.minor = version[VERSION_OFFSET_MINOR];
+    hmi_msg_feedback->payload.about.release = version[VERSION_OFFSET_RELEASE];
+
 
     xQueueSend(queue_to_hmi, hmi_msg_feedback, 1);
 }
