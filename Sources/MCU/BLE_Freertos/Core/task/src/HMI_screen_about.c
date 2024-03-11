@@ -127,7 +127,7 @@ void vHMIA_init(const void* const screen_a_data, YACSWL_widget_t* const root_wid
 
     /* Init Software version label */
     YACSWL_label_init(&HMI_A_lbl_soft_ver);
-    YACSWL_label_set_font(&HMI_A_lbl_soft_ver, &YACSGL_font_8x16);
+    YACSWL_label_set_font(&HMI_A_lbl_soft_ver, &YACSGL_font_5x7);
     YACSWL_label_set_text(&HMI_A_lbl_soft_ver, "Soft ver: X.0.0.0");
     YACSWL_widget_set_border_width(&(HMI_A_lbl_soft_ver.widget), 0u);
     YACSWL_widget_add_child(&HMI_A_root_widget, &HMI_A_lbl_soft_ver.widget);    

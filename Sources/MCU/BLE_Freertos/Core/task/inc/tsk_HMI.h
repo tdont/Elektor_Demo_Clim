@@ -133,6 +133,7 @@ typedef union __attribute__((packed))
     tskHMI_msg_fdbk_pld_ctrl_t          control_mode;
     tskHMI_msg_fdbk_pld_ble_sts_t       ble_status;
     tskHMI_msg_fdbk_pld_clim_sts_t      clim_status;
+    tskHMI_msg_fdbk_pld_about_t         about;
 
 }tskHMI_msg_fdbk_payload_t;
 

@@ -155,6 +155,8 @@ void HMI_handle_incomming_messages_ble_status_mode(tskHMI_TaskParam_t* task_para
                                         const tskHMI_msg_fdbk_pld_ble_sts_t* const ble_status_pld);
 void HMI_handle_incomming_messages_clim_status_mode(tskHMI_TaskParam_t* task_param, 
                                         const tskHMI_msg_fdbk_pld_clim_sts_t* const clim_status_pld);
+void HMI_handle_incomming_messages_about(tskHMI_TaskParam_t* task_param, 
+                                        const tskHMI_msg_fdbk_pld_about_t* const about_pld);
 
 void HMI_handle_incomming_messages_btn(tskHMI_TaskParam_t* task_param);
 void HMI_handle_incomming_messages_range(tskHMI_TaskParam_t* task_param);
@@ -457,6 +459,10 @@ void HMI_handle_incomming_messages_feedback(tskHMI_TaskParam_t* task_param)
             case HMI_MSG_FDBK_ID_CLIM:
                 HMI_handle_incomming_messages_clim_status_mode(task_param,
                                                 &(feedback_msg.payload.clim_status));
+
+            case HMI_MSG_FDBK_ID_ABOUT:
+                HMI_handle_incomming_messages_about(task_param,
+                                                &(feedback_msg.payload.about));
                 break;
             default:
                 /* Drop message */
@@ -500,6 +506,18 @@ void HMI_handle_incomming_messages_clim_status_mode(tskHMI_TaskParam_t* task_par
     /* Update data of status bar */
     status_bar_data.clim_mode = clim_status_pld->clim_mode;
     status_bar_data.setpoint_temperature = clim_status_pld->temperature_stpt;
+    return;
+}
+
+void HMI_handle_incomming_messages_about(tskHMI_TaskParam_t* task_param, 
+                                        const tskHMI_msg_fdbk_pld_about_t* const about_pld)
+{
+    /* Update about data */
+    screen_about_data.letter = about_pld->letter;
+    screen_about_data.major = about_pld->major;
+    screen_about_data.minor = about_pld->minor;
+    screen_about_data.release = about_pld->release;
+
     return;
 }
 
