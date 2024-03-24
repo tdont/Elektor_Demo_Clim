@@ -62,10 +62,8 @@ extern TIM_HandleTypeDef htim16;
 extern DMA_HandleTypeDef hdma_usart1_tx;
 extern TIM_HandleTypeDef htim2;
 
-extern TIM_HandleTypeDef TimHandleLF;
-
 /* USER CODE BEGIN EV */
-
+extern TIM_HandleTypeDef TimHandleLF;
 /* USER CODE END EV */
 
 /******************************************************************************/
